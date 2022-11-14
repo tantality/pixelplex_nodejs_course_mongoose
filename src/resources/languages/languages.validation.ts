@@ -113,7 +113,7 @@ export class LanguagesValidation {
       in: ['body'],
       ...LanguagesValidation.validateAndSanitizeStringParamSchema,
       isLength: {
-        errorMessage: 'Value must be in the range from 1 to 50 characters',
+        errorMessage: 'Value must be in the range from 2 to 50 characters',
         options: {
           min: 2,
           max: 50,
@@ -142,7 +142,7 @@ export class LanguagesValidation {
       in: ['body'],
       ...LanguagesValidation.validateAndSanitizeStringParamSchema,
       isLength: {
-        errorMessage: 'Value must be in the range from 1 to 50 characters',
+        errorMessage: 'Value must be in the range from 2 to 50 characters',
         options: {
           min: 2,
           max: 50,
