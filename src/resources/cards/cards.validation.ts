@@ -1,4 +1,5 @@
 import { ParamSchema, Schema } from 'express-validator';
+import { validateAndSanitizeString, validateId, validateBaseQuery } from '../../validations';
 
 interface IMeaning {
   id: number | string;
@@ -6,8 +7,6 @@ interface IMeaning {
 }
 
 export class CardsValidation {
-  private static replaceExtraSpaces = (value: string): string => value.replace(/\s+/g, ' ');
-
   private static checkArrayForDuplicates = <T>(arr: Array<T>): Array<T> => {
     const set = new Set<T>(arr);
     const isArrayContainDuplicates = set.size !== arr.length;
@@ -73,107 +72,23 @@ export class CardsValidation {
     toArray: true,
   };
 
-  private static validateAndSanitizeStringParamSchema: ParamSchema = {
-    isString: {
-      bail: true,
-    },
-    trim: true,
-    isLength: {
-      errorMessage: 'Value must be in the range from 1 to 254 characters',
-      options: {
-        min: 1,
-        max: 254,
-      },
-      bail: true,
-    },
-    toLowerCase: true,
-    customSanitizer: {
-      options: CardsValidation.replaceExtraSpaces,
-    },
-  };
-
-  private static validateIdParamSchema: ParamSchema = {
-    trim: true,
-    isInt: {
-      errorMessage: 'Value must be a number greater than 0',
-      options: {
-        min: 1,
-      },
-      bail: true,
-    },
-    toInt: true,
-  };
-
   static getCardsSchema: Schema = {
-    search: {
-      in: ['query'],
-      ...CardsValidation.validateAndSanitizeStringParamSchema,
-    },
-    offset: {
-      in: ['query'],
-      trim: true,
-      isInt: {
-        errorMessage: 'Value must be a number greater than 0',
-        options: {
-          min: 1,
-        },
-        bail: true,
-      },
-      toInt: true,
-    },
-    limit: {
-      in: ['query'],
-      default: {
-        options: 20,
-      },
-      trim: true,
-      isInt: {
-        errorMessage: 'Value must be a number in the range from 1 to 100',
-        options: {
-          min: 1,
-          max: 100,
-        },
-        bail: true,
-      },
-      toInt: true,
-    },
+    ...validateBaseQuery,
     languageId: {
       in: ['query'],
       optional: true,
-      ...CardsValidation.validateIdParamSchema,
-    },
-    sortBy: {
-      in: ['query'],
-      default: {
-        options: 'date',
-      },
-      trim: true,
-      toLowerCase: true,
-      isIn: {
-        options: ['date', 'word'],
-      },
-    },
-    sortDirection: {
-      in: ['query'],
-      default: {
-        options: 'asc',
-      },
-      trim: true,
-      toLowerCase: true,
-      isIn: {
-        options: ['asc', 'desc'],
-      },
+      ...validateId,
     },
   };
 
   static createCardSchema: Schema = {
     'nativeMeanings.*': {
       in: ['body'],
-      ...CardsValidation.validateAndSanitizeStringParamSchema,
+      ...validateAndSanitizeString,
     },
     'foreignMeanings.*': {
       in: ['body'],
-      ...CardsValidation.validateAndSanitizeStringParamSchema,
+      ...validateAndSanitizeString,
     },
     nativeMeanings: {
       ...CardsValidation.validateArrayParamSchema,
@@ -199,26 +114,26 @@ export class CardsValidation {
     },
     foreignLanguageId: {
       in: ['body'],
-      ...CardsValidation.validateIdParamSchema,
+      ...validateId,
     },
   };
 
   static updateCardSchema: Schema = {
     cardId: {
       in: ['params'],
-      ...CardsValidation.validateIdParamSchema,
+      ...validateId,
     },
     foreignLanguageId: {
       in: ['body'],
-      ...CardsValidation.validateIdParamSchema,
+      ...validateId,
     },
     'nativeMeanings.*.id': {
       in: ['body'],
-      ...CardsValidation.validateIdParamSchema,
+      ...validateId,
     },
     'nativeMeanings.*.value': {
       in: ['body'],
-      ...CardsValidation.validateAndSanitizeStringParamSchema,
+      ...validateAndSanitizeString,
     },
     nativeMeanings: {
       ...CardsValidation.validateArrayParamSchema,
@@ -228,11 +143,11 @@ export class CardsValidation {
     },
     'foreignMeanings.*.id': {
       in: ['body'],
-      ...CardsValidation.validateIdParamSchema,
+      ...validateId,
     },
     'foreignMeanings.*.value': {
       in: ['body'],
-      ...CardsValidation.validateAndSanitizeStringParamSchema,
+      ...validateAndSanitizeString,
     },
     foreignMeanings: {
       ...CardsValidation.validateArrayParamSchema,
@@ -245,7 +160,7 @@ export class CardsValidation {
   static deleteCardSchema: Schema = {
     cardId: {
       in: ['params'],
-      ...CardsValidation.validateIdParamSchema,
+      ...validateId,
     },
   };
 }
