@@ -8,7 +8,7 @@ const router = Router();
 
 router.get('/', checkSchema(LanguagesValidation.getLanguagesSchema), validatePayload, LanguagesController.getLanguages);
 router.get(
-  '/',
+  '/:languageId',
   checkSchema(LanguagesValidation.getOneLanguageSchema),
   validatePayload,
   LanguagesController.getOneLanguage,
