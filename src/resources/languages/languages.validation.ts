@@ -1,5 +1,6 @@
 import { ParamSchema, Schema } from 'express-validator';
 import { validateAndSanitizeString, validateBaseQuery, validateId } from '../../validations';
+
 export class LanguagesValidation {
   private static codeLength: ParamSchema = {
     isLength: {
