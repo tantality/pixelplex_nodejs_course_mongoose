@@ -1,5 +1,5 @@
 import { ParamSchema, Schema } from 'express-validator';
-import { validateAndSanitizeString, validateId, validateBaseQuery } from '../../validations';
+import { validateAndSanitizeString, validateId, validateBaseQuery, checkArrayForDuplicates } from '../../validations';
 
 interface IMeaning {
   id: number | string;
@@ -7,15 +7,6 @@ interface IMeaning {
 }
 
 export class CardsValidation {
-  private static checkArrayForDuplicates = <T>(arr: Array<T>): Array<T> => {
-    const set = new Set<T>(arr);
-    const isArrayContainDuplicates = set.size !== arr.length;
-    if (isArrayContainDuplicates) {
-      throw new Error('Array must contain unique elements');
-    }
-    return arr;
-  };
-
   private static isArrayOfStrings = (arr: Array<any>): boolean => arr.every((elem: any) => typeof elem === 'string');
   private static isArrayOfNumbers = (arr: Array<any>): boolean => arr.every((elem: any) => typeof elem === 'number');
 
@@ -50,11 +41,11 @@ export class CardsValidation {
     const values = CardsValidation.getValuesFromArrayOfMeanings(arr);
 
     if (CardsValidation.isArrayOfNumbers(ids)) {
-      CardsValidation.checkArrayForDuplicates(ids);
+      checkArrayForDuplicates(ids);
     }
 
     if (CardsValidation.isArrayOfStrings(values)) {
-      CardsValidation.checkArrayForDuplicates(values);
+      checkArrayForDuplicates(values);
     }
 
     return arr;
@@ -95,7 +86,7 @@ export class CardsValidation {
       custom: {
         options: (arr: Array<IMeaning>) => {
           if (CardsValidation.isArrayOfStrings(arr)) {
-            CardsValidation.checkArrayForDuplicates(arr);
+            checkArrayForDuplicates(arr);
           }
           return arr;
         },
@@ -106,7 +97,7 @@ export class CardsValidation {
       custom: {
         options: (arr: Array<IMeaning>) => {
           if (CardsValidation.isArrayOfStrings(arr)) {
-            return CardsValidation.checkArrayForDuplicates(arr);
+            checkArrayForDuplicates(arr);
           }
           return arr;
         },
