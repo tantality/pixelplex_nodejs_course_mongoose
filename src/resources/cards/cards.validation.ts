@@ -8,53 +8,12 @@ import {
   checkStringIn,
 } from '../../validations';
 
-interface IMeaning {
-  id: number | string;
-  value: string;
-}
-
 export class CardsValidation {
   private static isArrayOfStrings = (arr: Array<any>): boolean => arr.every((elem: any) => typeof elem === 'string');
-  private static isArrayOfNumbers = (arr: Array<any>): boolean => arr.every((elem: any) => typeof elem === 'number');
-
-  private static getIdsFromArrayOfMeanings = (arr: Array<IMeaning>): Array<number | null> => {
-    return arr.map((elem: IMeaning) => {
-      const id = elem.id;
-      const numericId = Number(id);
-      if (typeof id === 'string' && numericId) {
-        return numericId;
-      }
-      if (typeof id === 'number') {
-        return id;
-      }
-
-      return null;
-    });
-  };
-
-  private static getValuesFromArrayOfMeanings = (arr: Array<IMeaning>): Array<string | null> => {
-    return arr.map((elem: IMeaning) => {
-      const value = elem.value;
-      if (typeof value === 'string') {
-        return value;
-      } else {
-        return null;
-      }
-    });
-  };
-
-  private static validateMeanings = (arr: Array<IMeaning>): Array<IMeaning> => {
-    const ids = CardsValidation.getIdsFromArrayOfMeanings(arr);
-    const values = CardsValidation.getValuesFromArrayOfMeanings(arr);
-
-    if (CardsValidation.isArrayOfNumbers(ids)) {
-      checkArrayForDuplicates(ids);
+  private static validateArray = (arr: Array<any>): Array<any> => {
+    if (CardsValidation.isArrayOfStrings(arr)) {
+      checkArrayForDuplicates(arr);
     }
-
-    if (CardsValidation.isArrayOfStrings(values)) {
-      checkArrayForDuplicates(values);
-    }
-
     return arr;
   };
 
@@ -102,23 +61,13 @@ export class CardsValidation {
     nativeMeanings: {
       ...CardsValidation.validateArrayParamSchema,
       custom: {
-        options: (arr: Array<IMeaning>) => {
-          if (CardsValidation.isArrayOfStrings(arr)) {
-            checkArrayForDuplicates(arr);
-          }
-          return arr;
-        },
+        options: (arr: Array<any>) => CardsValidation.validateArray(arr),
       },
     },
     foreignMeanings: {
       ...CardsValidation.validateArrayParamSchema,
       custom: {
-        options: (arr: Array<IMeaning>) => {
-          if (CardsValidation.isArrayOfStrings(arr)) {
-            checkArrayForDuplicates(arr);
-          }
-          return arr;
-        },
+        options: (arr: Array<any>) => CardsValidation.validateArray(arr),
       },
     },
     foreignLanguageId: {
@@ -134,34 +83,31 @@ export class CardsValidation {
     },
     foreignLanguageId: {
       in: ['body'],
+      optional: true,
       ...validateId,
     },
-    'nativeMeanings.*.id': {
+    'nativeMeanings.*': {
       in: ['body'],
-      ...validateId,
+      optional: true,
+      ...validateAndSanitizeString,
     },
-    'nativeMeanings.*.value': {
+    'foreignMeanings.*': {
       in: ['body'],
+      optional: true,
       ...validateAndSanitizeString,
     },
     nativeMeanings: {
       ...CardsValidation.validateArrayParamSchema,
+      optional: true,
       custom: {
-        options: CardsValidation.validateMeanings,
+        options: (arr: Array<any>) => CardsValidation.validateArray(arr),
       },
-    },
-    'foreignMeanings.*.id': {
-      in: ['body'],
-      ...validateId,
-    },
-    'foreignMeanings.*.value': {
-      in: ['body'],
-      ...validateAndSanitizeString,
     },
     foreignMeanings: {
       ...CardsValidation.validateArrayParamSchema,
+      optional: true,
       custom: {
-        options: CardsValidation.validateMeanings,
+        options: (arr: Array<any>) => CardsValidation.validateArray(arr),
       },
     },
   };
