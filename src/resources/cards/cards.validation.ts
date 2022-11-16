@@ -10,7 +10,7 @@ import {
 
 export class CardsValidation {
   private static isArrayOfStrings = (arr: Array<any>): boolean => arr.every((elem: any) => typeof elem === 'string');
-  private static validateMeanings = (arr: any): any => {
+  private static validateWords = (arr: any): any => {
     if (Array.isArray(arr) && CardsValidation.isArrayOfStrings(arr)) {
       checkArrayForDuplicates(arr);
     }
@@ -49,24 +49,24 @@ export class CardsValidation {
   };
 
   static createCardSchema: Schema = {
-    'nativeMeanings.*': {
+    'nativeWords.*': {
       in: ['body'],
       ...validateAndSanitizeString,
     },
-    'foreignMeanings.*': {
+    'foreignWords.*': {
       in: ['body'],
       ...validateAndSanitizeString,
     },
-    nativeMeanings: {
+    nativeWords: {
       ...CardsValidation.validateArrayParamSchema,
       custom: {
-        options: (value: any) => CardsValidation.validateMeanings(value),
+        options: (value: any) => CardsValidation.validateWords(value),
       },
     },
-    foreignMeanings: {
+    foreignWords: {
       ...CardsValidation.validateArrayParamSchema,
       custom: {
-        options: (value: any) => CardsValidation.validateMeanings(value),
+        options: (value: any) => CardsValidation.validateWords(value),
       },
     },
     foreignLanguageId: {
@@ -85,28 +85,28 @@ export class CardsValidation {
       optional: true,
       ...validateId,
     },
-    'nativeMeanings.*': {
+    'nativeWords.*': {
       in: ['body'],
       optional: true,
       ...validateAndSanitizeString,
     },
-    'foreignMeanings.*': {
+    'foreignWords.*': {
       in: ['body'],
       optional: true,
       ...validateAndSanitizeString,
     },
-    nativeMeanings: {
+    nativeWords: {
       ...CardsValidation.validateArrayParamSchema,
       optional: true,
       custom: {
-        options: (value: any) => CardsValidation.validateMeanings(value),
+        options: (value: any) => CardsValidation.validateWords(value),
       },
     },
-    foreignMeanings: {
+    foreignWords: {
       ...CardsValidation.validateArrayParamSchema,
       optional: true,
       custom: {
-        options: (value: any) => CardsValidation.validateMeanings(value),
+        options: (value: any) => CardsValidation.validateWords(value),
       },
     },
   };
