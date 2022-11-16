@@ -10,8 +10,8 @@ import {
 
 export class CardsValidation {
   private static isArrayOfStrings = (arr: Array<any>): boolean => arr.every((elem: any) => typeof elem === 'string');
-  private static validateArray = (arr: Array<any>): Array<any> => {
-    if (CardsValidation.isArrayOfStrings(arr)) {
+  private static validateMeanings = (arr: any): any => {
+    if (Array.isArray(arr) && CardsValidation.isArrayOfStrings(arr)) {
       checkArrayForDuplicates(arr);
     }
     return arr;
@@ -20,13 +20,12 @@ export class CardsValidation {
   private static validateArrayParamSchema: ParamSchema = {
     in: ['body'],
     isArray: {
-      errorMessage: 'Array must contain the number of elements in the range from 1 to 3',
+      errorMessage: 'Value must be an array with the number of elements from 1 to 3',
       options: {
         min: 1,
         max: 3,
       },
     },
-    toArray: true,
   };
 
   static getCardsSchema: Schema = {
@@ -61,13 +60,13 @@ export class CardsValidation {
     nativeMeanings: {
       ...CardsValidation.validateArrayParamSchema,
       custom: {
-        options: (arr: Array<any>) => CardsValidation.validateArray(arr),
+        options: (value: any) => CardsValidation.validateMeanings(value),
       },
     },
     foreignMeanings: {
       ...CardsValidation.validateArrayParamSchema,
       custom: {
-        options: (arr: Array<any>) => CardsValidation.validateArray(arr),
+        options: (value: any) => CardsValidation.validateMeanings(value),
       },
     },
     foreignLanguageId: {
@@ -100,14 +99,14 @@ export class CardsValidation {
       ...CardsValidation.validateArrayParamSchema,
       optional: true,
       custom: {
-        options: (arr: Array<any>) => CardsValidation.validateArray(arr),
+        options: (value: any) => CardsValidation.validateMeanings(value),
       },
     },
     foreignMeanings: {
       ...CardsValidation.validateArrayParamSchema,
       optional: true,
       custom: {
-        options: (arr: Array<any>) => CardsValidation.validateArray(arr),
+        options: (value: any) => CardsValidation.validateMeanings(value),
       },
     },
   };
