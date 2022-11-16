@@ -1,5 +1,6 @@
 import { ParamSchema, Schema } from 'express-validator';
-import { validateAndSanitizeString, validateBaseQuery, validateId } from '../../validations';
+import { SORT_BY } from '../../constants/common.constants';
+import { checkStringIn, validateAndSanitizeString, validateBaseQuery, validateId } from '../../validations';
 
 export class LanguagesValidation {
   private static codeLength: ParamSchema = {
@@ -22,7 +23,20 @@ export class LanguagesValidation {
     },
   };
 
-  static getLanguagesSchema: Schema = validateBaseQuery;
+  static getLanguagesSchema: Schema = {
+    ...validateBaseQuery,
+    sortBy: {
+      in: ['query'],
+      default: {
+        options: SORT_BY.DATE,
+      },
+      trim: true,
+      toLowerCase: true,
+      custom: {
+        options: (value: string) => checkStringIn(value, [SORT_BY.DATE, SORT_BY.NAME]),
+      },
+    },
+  };
 
   static getOneLanguageSchema: Schema = {
     languageId: {

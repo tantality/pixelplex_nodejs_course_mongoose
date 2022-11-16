@@ -1,5 +1,13 @@
 import { Schema } from 'express-validator';
-import { checkArrayForDuplicates, validateAndSanitizeString, validateBaseQuery, validateId } from '../../validations';
+import { SORT_BY } from '../../constants/common.constants';
+import {
+  checkArrayForDuplicates,
+  checkStringIn,
+  validateAndSanitizeString,
+  validateBaseQuery,
+  validateId,
+} from '../../validations';
+import { TASK_STATUS, TASK_TYPE } from './tasks.constants';
 
 export class TasksValidation {
   private static isInvalidDate = (date: Date): boolean => new Date().getTime() >= date.getTime();
@@ -13,18 +21,21 @@ export class TasksValidation {
     },
     taskStatus: {
       in: ['query'],
-      isString: {
-        bail: true,
-      },
       trim: true,
       toLowerCase: true,
-      isIn: {
-        options: ['unanswered', 'correct', 'incorrect'],
+      custom: {
+        options: (value: string) => checkStringIn(value, Object.values(TASK_STATUS)),
       },
     },
     sortBy: {
-      isIn: {
-        options: ['date'],
+      in: ['query'],
+      default: {
+        options: SORT_BY.DATE,
+      },
+      trim: true,
+      toLowerCase: true,
+      custom: {
+        options: (value: string) => checkStringIn(value, [SORT_BY.DATE]),
       },
     },
   };
@@ -102,8 +113,8 @@ export class TasksValidation {
       },
       trim: true,
       toLowerCase: true,
-      isIn: {
-        options: ['to_native', 'to_foreign'],
+      custom: {
+        options: (value: string) => checkStringIn(value, Object.values(TASK_TYPE)),
       },
     },
   };

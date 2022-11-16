@@ -1,5 +1,6 @@
 import { Schema } from 'express-validator';
-import { validateAndSanitizeString } from '.';
+import { SORT_DIRECTION } from '../constants/common.constants';
+import { checkStringIn, validateAndSanitizeString } from '.';
 
 export const validateBaseQuery: Schema = {
   search: {
@@ -34,26 +35,15 @@ export const validateBaseQuery: Schema = {
     },
     toInt: true,
   },
-  sortBy: {
-    in: ['query'],
-    default: {
-      options: 'date',
-    },
-    trim: true,
-    toLowerCase: true,
-    isIn: {
-      options: ['date', 'word'],
-    },
-  },
   sortDirection: {
     in: ['query'],
     default: {
-      options: 'asc',
+      options: SORT_DIRECTION.ACS,
     },
     trim: true,
     toLowerCase: true,
-    isIn: {
-      options: ['asc', 'desc'],
+    custom: {
+      options: (value: string) => checkStringIn(value, Object.values(SORT_DIRECTION)),
     },
   },
 };

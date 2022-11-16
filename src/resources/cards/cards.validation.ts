@@ -1,5 +1,12 @@
 import { ParamSchema, Schema } from 'express-validator';
-import { validateAndSanitizeString, validateId, validateBaseQuery, checkArrayForDuplicates } from '../../validations';
+import { SORT_BY } from '../../constants/common.constants';
+import {
+  validateAndSanitizeString,
+  validateId,
+  validateBaseQuery,
+  checkArrayForDuplicates,
+  checkStringIn,
+} from '../../validations';
 
 interface IMeaning {
   id: number | string;
@@ -69,6 +76,17 @@ export class CardsValidation {
       in: ['query'],
       optional: true,
       ...validateId,
+    },
+    sortBy: {
+      in: ['query'],
+      default: {
+        options: SORT_BY.DATE,
+      },
+      trim: true,
+      toLowerCase: true,
+      custom: {
+        options: (value: string) => checkStringIn(value, [SORT_BY.DATE, SORT_BY.WORD]),
+      },
     },
   };
 
