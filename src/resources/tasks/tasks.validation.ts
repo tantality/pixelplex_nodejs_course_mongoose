@@ -45,11 +45,6 @@ export class TasksValidation {
       in: ['query'],
       optional: true,
       ...validateAndSanitizeString,
-      isLength: {
-        options: {
-          min: 0,
-        },
-      },
       isISO8601: {
         bail: true,
       },
@@ -67,11 +62,6 @@ export class TasksValidation {
       in: ['query'],
       optional: true,
       ...validateAndSanitizeString,
-      isLength: {
-        options: {
-          min: 0,
-        },
-      },
       isISO8601: {
         bail: true,
       },
@@ -108,11 +98,7 @@ export class TasksValidation {
     },
     type: {
       in: ['body'],
-      isString: {
-        bail: true,
-      },
-      trim: true,
-      toLowerCase: true,
+      ...validateAndSanitizeString,
       custom: {
         options: (value: string) => checkStringIn(value, Object.values(TASK_TYPE)),
       },

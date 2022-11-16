@@ -6,6 +6,7 @@ import {
   validateBaseQuery,
   checkArrayForDuplicates,
   checkStringIn,
+  validateStringLength,
 } from '../../validations';
 
 export class CardsValidation {
@@ -52,10 +53,12 @@ export class CardsValidation {
     'nativeWords.*': {
       in: ['body'],
       ...validateAndSanitizeString,
+      ...validateStringLength,
     },
     'foreignWords.*': {
       in: ['body'],
       ...validateAndSanitizeString,
+      ...validateStringLength,
     },
     nativeWords: {
       ...CardsValidation.validateArrayParamSchema,
@@ -89,11 +92,13 @@ export class CardsValidation {
       in: ['body'],
       optional: true,
       ...validateAndSanitizeString,
+      ...validateStringLength,
     },
     'foreignWords.*': {
       in: ['body'],
       optional: true,
       ...validateAndSanitizeString,
+      ...validateStringLength,
     },
     nativeWords: {
       ...CardsValidation.validateArrayParamSchema,

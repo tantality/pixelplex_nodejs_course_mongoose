@@ -1,11 +1,12 @@
 import { Schema } from 'express-validator';
 import { SORT_DIRECTION } from '../constants/common.constants';
-import { checkStringIn, validateAndSanitizeString } from '.';
+import { checkStringIn, validateAndSanitizeString, validateStringLength } from '.';
 
 export const validateBaseQuery: Schema = {
   search: {
     in: ['query'],
     ...validateAndSanitizeString,
+    ...validateStringLength,
   },
   offset: {
     in: ['query'],
