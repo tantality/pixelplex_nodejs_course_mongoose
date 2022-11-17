@@ -65,11 +65,13 @@ export class LanguagesValidation {
     },
     code: {
       in: ['body'],
+      optional: true,
       ...validateAndSanitizeString,
       ...LanguagesValidation.codeLength,
     },
     name: {
       in: ['body'],
+      optional: true,
       ...validateAndSanitizeString,
       ...LanguagesValidation.nameLength,
     },

@@ -5,6 +5,7 @@ import { checkStringIn, validateAndSanitizeString, validateStringLength } from '
 export const validateBaseQuery: Schema = {
   search: {
     in: ['query'],
+    optional: true,
     ...validateAndSanitizeString,
     ...validateStringLength,
   },

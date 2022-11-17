@@ -16,11 +16,20 @@ export class TasksValidation {
     ...validateBaseQuery,
     languageId: {
       in: ['query'],
-      optional: true,
+      optional: {
+        options: {
+          checkFalsy: true,
+        },
+      },
       ...validateId,
     },
     taskStatus: {
       in: ['query'],
+      optional: {
+        options: {
+          checkFalsy: true,
+        },
+      },
       trim: true,
       toLowerCase: true,
       custom: {
@@ -43,14 +52,18 @@ export class TasksValidation {
   static getStatisticsSchema: Schema = {
     fromDate: {
       in: ['query'],
-      optional: true,
+      optional: {
+        options: {
+          checkFalsy: true,
+        },
+      },
       ...validateAndSanitizeString,
       isISO8601: {
         bail: true,
       },
       toDate: true,
       custom: {
-        options: (fromDate) => {
+        options: (fromDate: Date) => {
           if (!TasksValidation.isInvalidDate(fromDate)) {
             throw new Error();
           }
@@ -60,7 +73,11 @@ export class TasksValidation {
     },
     toDate: {
       in: ['query'],
-      optional: true,
+      optional: {
+        options: {
+          checkFalsy: true,
+        },
+      },
       ...validateAndSanitizeString,
       isISO8601: {
         bail: true,
@@ -77,6 +94,10 @@ export class TasksValidation {
         },
       },
     },
+    'languageIds.*': {
+      in: ['query'],
+      ...validateId,
+    },
     languageIds: {
       in: ['query'],
       optional: true,
@@ -84,10 +105,6 @@ export class TasksValidation {
       custom: {
         options: checkArrayForDuplicates,
       },
-    },
-    'languageIds.*': {
-      in: ['query'],
-      ...validateId,
     },
   };
 

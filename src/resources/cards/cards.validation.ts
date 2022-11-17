@@ -33,7 +33,11 @@ export class CardsValidation {
     ...validateBaseQuery,
     languageId: {
       in: ['query'],
-      optional: true,
+      optional: {
+        options: {
+          checkFalsy: true,
+        },
+      },
       ...validateId,
     },
     sortBy: {
