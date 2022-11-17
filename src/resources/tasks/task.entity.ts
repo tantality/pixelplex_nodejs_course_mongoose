@@ -1,6 +1,6 @@
 import { TASK_STATUS, TASK_TYPE } from './tasks.constants';
 
-let tasksCounter = 1;
+let taskCounter = 1;
 
 export class Task {
   id: number;
@@ -15,7 +15,7 @@ export class Task {
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
   ) {
-    this.id = tasksCounter;
-    tasksCounter += 1;
+    this.id = taskCounter;
+    taskCounter += 1;
   }
 }

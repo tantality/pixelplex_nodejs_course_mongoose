@@ -1,4 +1,4 @@
-let cardsCounter = 1;
+let cardCounter = 1;
 
 export class Card {
   id: number;
@@ -10,7 +10,7 @@ export class Card {
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
   ) {
-    this.id = cardsCounter;
-    cardsCounter += 1;
+    this.id = cardCounter;
+    cardCounter += 1;
   }
 }

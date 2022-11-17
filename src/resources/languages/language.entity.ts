@@ -1,4 +1,4 @@
-let languagesCounter = 1;
+let languageCounter = 1;
 
 export class Language {
   id: number;
@@ -9,7 +9,7 @@ export class Language {
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
   ) {
-    this.id = languagesCounter;
-    languagesCounter += 1;
+    this.id = languageCounter;
+    languageCounter += 1;
   }
 }

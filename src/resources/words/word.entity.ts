@@ -1,4 +1,4 @@
-let wordsCounter = 1;
+let wordCounter = 1;
 
 export class Word {
   id: number;
@@ -10,7 +10,7 @@ export class Word {
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
   ) {
-    this.id = wordsCounter;
-    wordsCounter += 1;
+    this.id = wordCounter;
+    wordCounter += 1;
   }
 }

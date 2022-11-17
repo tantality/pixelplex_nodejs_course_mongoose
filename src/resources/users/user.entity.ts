@@ -1,6 +1,6 @@
 import { USER_ROLE } from './users.constants';
 
-let usersCounter = 1;
+let userCounter = 1;
 
 export class User {
   id: number;
@@ -16,7 +16,7 @@ export class User {
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
   ) {
-    this.id = usersCounter;
-    usersCounter += 1;
+    this.id = userCounter;
+    userCounter += 1;
   }
 }
