@@ -12,6 +12,18 @@ import { TASK_STATUS, TASK_TYPE } from './tasks.constants';
 
 export class TasksValidation {
   private static isInvalidDate = (date: Date): boolean => new Date().getTime() >= date.getTime();
+  private static isArrayOfNumbers = (arr: Array<any>): boolean => arr.every((elem: any) => typeof elem === 'number');
+  private static validateIds = (value: any): any => {
+    const isArr = Array.isArray(value);
+    let arrLength = 0;
+    if (isArr) {
+      arrLength = value.length;
+    }
+    if (arrLength > 1 && TasksValidation.isArrayOfNumbers(value)) {
+      checkArrayForDuplicates(value);
+    }
+    return value;
+  };
 
   static getTasksSchema: Schema = {
     ...validateBaseQuery,
@@ -104,7 +116,7 @@ export class TasksValidation {
       optional: true,
       isArray: true,
       custom: {
-        options: checkArrayForDuplicates,
+        options: (value: any) => TasksValidation.validateIds(value),
       },
     },
   };
