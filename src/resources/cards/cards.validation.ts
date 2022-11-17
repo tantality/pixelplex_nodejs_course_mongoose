@@ -4,20 +4,14 @@ import {
   validateAndSanitizeString,
   validateId,
   validateBaseQuery,
-  checkArrayForDuplicates,
   checkStringIn,
   validateStringLength,
   validateIdInBody,
+  validateArray,
 } from '../../validations';
 
 export class CardsValidation {
-  private static isArrayOfStrings = (arr: Array<any>): boolean => arr.every((elem: any) => typeof elem === 'string');
-  private static validateWords = (arr: any): any => {
-    if (Array.isArray(arr) && CardsValidation.isArrayOfStrings(arr)) {
-      checkArrayForDuplicates(arr);
-    }
-    return arr;
-  };
+  private static isArrayOfStrings = (arr: Array<any>): boolean => arr.every((elem) => typeof elem === 'string');
 
   private static validateArrayParamSchema: ParamSchema = {
     in: ['body'],
@@ -27,6 +21,10 @@ export class CardsValidation {
         min: 1,
         max: 3,
       },
+      bail: true,
+    },
+    custom: {
+      options: (value: Array<any>) => validateArray(value, CardsValidation.isArrayOfStrings),
     },
   };
 
@@ -67,15 +65,9 @@ export class CardsValidation {
     },
     nativeWords: {
       ...CardsValidation.validateArrayParamSchema,
-      custom: {
-        options: (value: any) => CardsValidation.validateWords(value),
-      },
     },
     foreignWords: {
       ...CardsValidation.validateArrayParamSchema,
-      custom: {
-        options: (value: any) => CardsValidation.validateWords(value),
-      },
     },
     foreignLanguageId: {
       in: ['body'],
@@ -106,18 +98,12 @@ export class CardsValidation {
       ...validateStringLength,
     },
     nativeWords: {
-      ...CardsValidation.validateArrayParamSchema,
       optional: true,
-      custom: {
-        options: (value: any) => CardsValidation.validateWords(value),
-      },
+      ...CardsValidation.validateArrayParamSchema,
     },
     foreignWords: {
-      ...CardsValidation.validateArrayParamSchema,
       optional: true,
-      custom: {
-        options: (value: any) => CardsValidation.validateWords(value),
-      },
+      ...CardsValidation.validateArrayParamSchema,
     },
   };
 
