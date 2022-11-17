@@ -12,7 +12,7 @@ import {
 import { TASK_STATUS, TASK_TYPE } from './tasks.constants';
 
 export class TasksValidation {
-  private static isInvalidDate = (date: Date): boolean => new Date().getTime() >= date.getTime();
+  private static isInvalidDate = (date: Date): boolean => date.getTime() >= new Date().getTime();
   private static isArrayOfNumbers = (arr: Array<any>): boolean => arr.every((elem: any) => typeof elem === 'number');
 
   static getTasksSchema: Schema = {
@@ -67,7 +67,7 @@ export class TasksValidation {
       toDate: true,
       custom: {
         options: (fromDate: Date) => {
-          if (!TasksValidation.isInvalidDate(fromDate)) {
+          if (TasksValidation.isInvalidDate(fromDate)) {
             throw new Error();
           }
           return fromDate;
@@ -90,7 +90,10 @@ export class TasksValidation {
         options: (toDate: Date, { req }) => {
           const fromDate = req.query?.fromDate;
           const tryParseFromDate = Date.parse(fromDate);
-          if ((tryParseFromDate && fromDate >= toDate) || !TasksValidation.isInvalidDate(toDate)) {
+          if (
+            (tryParseFromDate && fromDate >= toDate && !TasksValidation.isInvalidDate(fromDate)) ||
+            TasksValidation.isInvalidDate(toDate)
+          ) {
             throw new Error();
           }
           return toDate;
