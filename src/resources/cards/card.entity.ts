@@ -1,4 +1,4 @@
-let cardsCounter = 0;
+let cardsCounter = 1;
 
 export class Card {
   id: number;

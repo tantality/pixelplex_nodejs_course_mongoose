@@ -1,4 +1,4 @@
-let languagesCounter = 0;
+let languagesCounter = 1;
 
 export class Language {
   id: number;

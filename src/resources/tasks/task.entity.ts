@@ -1,6 +1,6 @@
 import { TASK_STATUS, TASK_TYPE } from './tasks.constants';
 
-let tasksCounter = 0;
+let tasksCounter = 1;
 
 export class Task {
   id: number;

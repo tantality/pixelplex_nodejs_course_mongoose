@@ -1,6 +1,6 @@
 import { USER_ROLE } from './users.constants';
 
-let usersCounter = 0;
+let usersCounter = 1;
 
 export class User {
   id: number;

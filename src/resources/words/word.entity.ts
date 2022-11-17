@@ -1,4 +1,4 @@
-let wordsCounter = 0;
+let wordsCounter = 1;
 
 export class Word {
   id: number;
