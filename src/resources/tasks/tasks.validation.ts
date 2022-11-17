@@ -1,4 +1,4 @@
-import { Schema } from 'express-validator';
+import { ParamSchema, Schema } from 'express-validator';
 import { SORT_BY } from '../../constants/common.constants';
 import {
   checkStringIn,
@@ -14,6 +14,19 @@ import { TASK_STATUS, TASK_TYPE } from './tasks.constants';
 export class TasksValidation {
   private static isInvalidDate = (date: Date): boolean => date.getTime() >= new Date().getTime();
   private static isArrayOfNumbers = (arr: Array<any>): boolean => arr.every((elem: any) => typeof elem === 'number');
+  private static basicDateValidation: ParamSchema = {
+    in: ['query'],
+    optional: {
+      options: {
+        checkFalsy: true,
+      },
+    },
+    ...validateAndSanitizeString,
+    isISO8601: {
+      bail: true,
+    },
+    toDate: true,
+  };
 
   static getTasksSchema: Schema = {
     ...validateBaseQuery,
@@ -54,17 +67,7 @@ export class TasksValidation {
 
   static getStatisticsSchema: Schema = {
     fromDate: {
-      in: ['query'],
-      optional: {
-        options: {
-          checkFalsy: true,
-        },
-      },
-      ...validateAndSanitizeString,
-      isISO8601: {
-        bail: true,
-      },
-      toDate: true,
+      ...TasksValidation.basicDateValidation,
       custom: {
         options: (fromDate: Date) => {
           if (TasksValidation.isInvalidDate(fromDate)) {
@@ -75,17 +78,7 @@ export class TasksValidation {
       },
     },
     toDate: {
-      in: ['query'],
-      optional: {
-        options: {
-          checkFalsy: true,
-        },
-      },
-      ...validateAndSanitizeString,
-      isISO8601: {
-        bail: true,
-      },
-      toDate: true,
+      ...TasksValidation.basicDateValidation,
       custom: {
         options: (toDate: Date, { req }) => {
           const fromDate = req.query?.fromDate;
