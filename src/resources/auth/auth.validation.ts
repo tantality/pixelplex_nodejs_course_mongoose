@@ -47,9 +47,9 @@ export class AuthValidation {
         bail: true,
       },
       isLength: {
-        errorMessage: 'Value can consist of a maximum of 50 characters',
+        errorMessage: 'Value can consist of a maximum of 20 characters',
         options: {
-          max: 50,
+          max: 20,
         },
         bail: true,
       },
