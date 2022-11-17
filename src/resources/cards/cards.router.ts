@@ -12,5 +12,5 @@ router.patch('/:cardId', checkSchema(CardsValidation.updateCard), validatePayloa
 router.delete('/:cardId', checkSchema(CardsValidation.deleteCard), validatePayload, CardsController.deleteCard);
 
 export function mountCardsRouter(app: Application): void {
-  app.use('/cards', router);
+  app.use('/api/v1/cards', router);
 }

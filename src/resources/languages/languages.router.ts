@@ -28,5 +28,5 @@ router.delete(
 );
 
 export function mountLanguagesRouter(app: Application): void {
-  app.use('/languages', router);
+  app.use('/api/v1/languages', router);
 }

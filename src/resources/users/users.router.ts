@@ -9,5 +9,5 @@ const router = Router();
 router.patch('/', checkSchema(UsersValidation.updateUser), validatePayload, UsersController.updateUser);
 
 export function mountUsersRouter(app: Application): void {
-  app.use('/users', router);
+  app.use('/api/v1/users', router);
 }

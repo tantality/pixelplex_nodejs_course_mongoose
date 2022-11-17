@@ -13,5 +13,5 @@ router.get('/log-out', AuthController.logOut);
 router.post('/refresh-tokens', AuthController.refreshTokens);
 
 export function mountAuthRouter(app: Application): void {
-  app.use('/auth', router);
+  app.use('/api/v1/auth', router);
 }

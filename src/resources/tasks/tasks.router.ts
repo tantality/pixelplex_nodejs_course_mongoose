@@ -17,5 +17,5 @@ router.post(
 );
 
 export function mountTasksRouter(app: Application): void {
-  app.use('/tasks', router);
+  app.use('/api/v1/tasks', router);
 }
