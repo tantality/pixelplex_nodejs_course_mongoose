@@ -7,6 +7,7 @@ import {
   validateBaseQuery,
   validateId,
   validateIdInBody,
+  validateStringLength,
 } from '../../validations';
 import { TASK_STATUS, TASK_TYPE } from './tasks.constants';
 
@@ -139,6 +140,11 @@ export class TasksValidation {
     taskId: {
       in: ['params'],
       ...validateId,
+    },
+    answer: {
+      in: ['body'],
+      ...validateAndSanitizeString,
+      ...validateStringLength,
     },
   };
 }
