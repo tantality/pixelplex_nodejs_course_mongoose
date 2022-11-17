@@ -23,7 +23,7 @@ export class LanguagesValidation {
     },
   };
 
-  static getLanguagesSchema: Schema = {
+  static getLanguages: Schema = {
     ...validateBaseQuery,
     sortBy: {
       in: ['query'],
@@ -38,14 +38,14 @@ export class LanguagesValidation {
     },
   };
 
-  static getOneLanguageSchema: Schema = {
+  static getOneLanguage: Schema = {
     languageId: {
       in: ['params'],
       ...validateId,
     },
   };
 
-  static createLanguageSchema: Schema = {
+  static createLanguage: Schema = {
     code: {
       in: ['body'],
       ...validateAndSanitizeString,
@@ -58,7 +58,7 @@ export class LanguagesValidation {
     },
   };
 
-  static updateLanguageSchema: Schema = {
+  static updateLanguage: Schema = {
     languageId: {
       in: ['params'],
       ...validateId,
@@ -77,7 +77,7 @@ export class LanguagesValidation {
     },
   };
 
-  static deleteLanguageSchema: Schema = {
+  static deleteLanguage: Schema = {
     languageId: {
       in: ['params'],
       ...validateId,

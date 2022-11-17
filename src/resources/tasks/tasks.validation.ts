@@ -28,7 +28,7 @@ export class TasksValidation {
     toDate: true,
   };
 
-  static getTasksSchema: Schema = {
+  static getTasks: Schema = {
     ...validateBaseQuery,
     languageId: {
       in: ['query'],
@@ -65,7 +65,7 @@ export class TasksValidation {
     },
   };
 
-  static getStatisticsSchema: Schema = {
+  static getStatistics: Schema = {
     fromDate: {
       ...TasksValidation.basicDateValidation,
       custom: {
@@ -109,7 +109,7 @@ export class TasksValidation {
     },
   };
 
-  static createTaskSchema: Schema = {
+  static createTask: Schema = {
     foreignLanguageId: {
       in: ['body'],
       ...validateIdInBody,
@@ -123,7 +123,7 @@ export class TasksValidation {
     },
   };
 
-  static addAnswerToTaskSchema: Schema = {
+  static addAnswerToTask: Schema = {
     taskId: {
       in: ['params'],
       ...validateId,

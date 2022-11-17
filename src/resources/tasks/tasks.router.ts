@@ -6,17 +6,12 @@ import { TasksValidation } from './tasks.validation';
 
 const router = Router();
 
-router.get('/', checkSchema(TasksValidation.getTasksSchema), validatePayload, TasksController.getTasks);
-router.get(
-  '/statistics',
-  checkSchema(TasksValidation.getStatisticsSchema),
-  validatePayload,
-  TasksController.getStatistics,
-);
-router.post('/', checkSchema(TasksValidation.createTaskSchema), validatePayload, TasksController.createTask);
+router.get('/', checkSchema(TasksValidation.getTasks), validatePayload, TasksController.getTasks);
+router.get('/statistics', checkSchema(TasksValidation.getStatistics), validatePayload, TasksController.getStatistics);
+router.post('/', checkSchema(TasksValidation.createTask), validatePayload, TasksController.createTask);
 router.post(
   '/:taskId/answer',
-  checkSchema(TasksValidation.addAnswerToTaskSchema),
+  checkSchema(TasksValidation.addAnswerToTask),
   validatePayload,
   TasksController.addAnswerToTask,
 );

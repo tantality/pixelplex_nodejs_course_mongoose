@@ -13,7 +13,7 @@ import {
 export class CardsValidation {
   private static isArrayOfStrings = (arr: Array<any>): boolean => arr.every((elem) => typeof elem === 'string');
 
-  private static validateArrayParamSchema: ParamSchema = {
+  private static validateArray: ParamSchema = {
     in: ['body'],
     isArray: {
       errorMessage: 'Value must be an array with the number of elements from 1 to 3',
@@ -28,7 +28,7 @@ export class CardsValidation {
     },
   };
 
-  static getCardsSchema: Schema = {
+  static getCards: Schema = {
     ...validateBaseQuery,
     languageId: {
       in: ['query'],
@@ -52,7 +52,7 @@ export class CardsValidation {
     },
   };
 
-  static createCardSchema: Schema = {
+  static createCard: Schema = {
     'nativeWords.*': {
       in: ['body'],
       ...validateAndSanitizeString,
@@ -64,10 +64,10 @@ export class CardsValidation {
       ...validateStringLength,
     },
     nativeWords: {
-      ...CardsValidation.validateArrayParamSchema,
+      ...CardsValidation.validateArray,
     },
     foreignWords: {
-      ...CardsValidation.validateArrayParamSchema,
+      ...CardsValidation.validateArray,
     },
     foreignLanguageId: {
       in: ['body'],
@@ -75,7 +75,7 @@ export class CardsValidation {
     },
   };
 
-  static updateCardSchema: Schema = {
+  static updateCard: Schema = {
     cardId: {
       in: ['params'],
       ...validateId,
@@ -99,15 +99,15 @@ export class CardsValidation {
     },
     nativeWords: {
       optional: true,
-      ...CardsValidation.validateArrayParamSchema,
+      ...CardsValidation.validateArray,
     },
     foreignWords: {
       optional: true,
-      ...CardsValidation.validateArrayParamSchema,
+      ...CardsValidation.validateArray,
     },
   };
 
-  static deleteCardSchema: Schema = {
+  static deleteCard: Schema = {
     cardId: {
       in: ['params'],
       ...validateId,

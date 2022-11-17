@@ -2,7 +2,7 @@ import { Schema } from 'express-validator';
 import { validateIdInBody } from '../../validations';
 
 export class UsersValidation {
-  static updateUserSchema: Schema = {
+  static updateUser: Schema = {
     nativeLanguageId: {
       in: ['body'],
       ...validateIdInBody,

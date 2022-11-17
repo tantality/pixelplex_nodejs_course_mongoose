@@ -6,28 +6,23 @@ import { LanguagesValidation } from './languages.validation';
 
 const router = Router();
 
-router.get('/', checkSchema(LanguagesValidation.getLanguagesSchema), validatePayload, LanguagesController.getLanguages);
+router.get('/', checkSchema(LanguagesValidation.getLanguages), validatePayload, LanguagesController.getLanguages);
 router.get(
   '/:languageId',
-  checkSchema(LanguagesValidation.getOneLanguageSchema),
+  checkSchema(LanguagesValidation.getOneLanguage),
   validatePayload,
   LanguagesController.getOneLanguage,
 );
-router.post(
-  '/',
-  checkSchema(LanguagesValidation.createLanguageSchema),
-  validatePayload,
-  LanguagesController.createLanguage,
-);
+router.post('/', checkSchema(LanguagesValidation.createLanguage), validatePayload, LanguagesController.createLanguage);
 router.patch(
   '/:languageId',
-  checkSchema(LanguagesValidation.updateLanguageSchema),
+  checkSchema(LanguagesValidation.updateLanguage),
   validatePayload,
   LanguagesController.updateLanguage,
 );
 router.delete(
   '/:languageId',
-  checkSchema(LanguagesValidation.deleteLanguageSchema),
+  checkSchema(LanguagesValidation.deleteLanguage),
   validatePayload,
   LanguagesController.deleteLanguage,
 );
