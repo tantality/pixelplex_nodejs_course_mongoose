@@ -7,6 +7,7 @@ import {
   checkArrayForDuplicates,
   checkStringIn,
   validateStringLength,
+  validateIdInBody,
 } from '../../validations';
 
 export class CardsValidation {
@@ -78,7 +79,7 @@ export class CardsValidation {
     },
     foreignLanguageId: {
       in: ['body'],
-      ...validateId,
+      ...validateIdInBody,
     },
   };
 
@@ -90,7 +91,7 @@ export class CardsValidation {
     foreignLanguageId: {
       in: ['body'],
       optional: true,
-      ...validateId,
+      ...validateIdInBody,
     },
     'nativeWords.*': {
       in: ['body'],

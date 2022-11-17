@@ -6,6 +6,7 @@ import {
   validateAndSanitizeString,
   validateBaseQuery,
   validateId,
+  validateIdInBody,
 } from '../../validations';
 import { TASK_STATUS, TASK_TYPE } from './tasks.constants';
 
@@ -111,7 +112,7 @@ export class TasksValidation {
   static createTaskSchema: Schema = {
     foreignLanguageId: {
       in: ['body'],
-      ...validateId,
+      ...validateIdInBody,
     },
     type: {
       in: ['body'],
