@@ -40,7 +40,7 @@ export const validateBaseQuery: Schema = {
   sortDirection: {
     in: ['query'],
     default: {
-      options: SORT_DIRECTION.ACS,
+      options: SORT_DIRECTION.ASC,
     },
     trim: true,
     toLowerCase: true,

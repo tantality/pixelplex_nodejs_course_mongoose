@@ -5,6 +5,6 @@ export enum SORT_BY {
 }
 
 export enum SORT_DIRECTION {
-  ACS = 'asc',
+  ASC = 'asc',
   DESC = 'desc',
 }
