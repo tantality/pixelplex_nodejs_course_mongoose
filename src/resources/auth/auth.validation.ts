@@ -1,16 +1,9 @@
-import { CustomValidator, Schema } from 'express-validator';
+import { Schema } from 'express-validator';
 import { validateStringLength } from '../../validations';
 
 export class AuthValidation {
-  private static findRussianLetters: CustomValidator = function (value: string): string {
-    const matches: string[] | null = value.match(/[А-Яа-яЁё]/gi);
-    if (matches && matches.length) {
-      throw new Error();
-    }
-    return value;
-  };
-
-  private static findSpecialCharactersRegExp = new RegExp('[!@#$%^&*()_+=]', 'g');
+  private static checkStrongPasswordRegExp =
+    /(?=.*[0-9])(?=.*[!@#$%^&*()_+=])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*()_+=]{8,}/g;
 
   static logIn: Schema = {
     email: {
@@ -27,22 +20,10 @@ export class AuthValidation {
         bail: true,
       },
       trim: true,
-      custom: {
-        errorMessage: 'Value must not contain letters of the Russian alphabet',
-        options: AuthValidation.findRussianLetters,
-        bail: true,
-      },
-      isStrongPassword: {
+      matches: {
         errorMessage:
           'Value must consist of at least 8 lowercase and uppercase Latin characters, at least one digit and at least one special character (!@#$%^&*()_+=)',
-        options: {
-          minLength: 10,
-        },
-        bail: true,
-      },
-      matches: {
-        errorMessage: 'Value must contain at least one special character (!@#$%^&*()_+=)',
-        options: AuthValidation.findSpecialCharactersRegExp,
+        options: AuthValidation.checkStrongPasswordRegExp,
       },
     },
   };
