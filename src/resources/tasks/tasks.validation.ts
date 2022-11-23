@@ -1,5 +1,5 @@
 import { ParamSchema, Schema } from 'express-validator';
-import { SORT_BY } from '../../constants/common.constants';
+import { DEFAULT_STRING_LENGTH, SORT_BY } from '../../constants/common.constants';
 import {
   checkStringIn,
   validateAndSanitizeString,
@@ -7,7 +7,6 @@ import {
   validateBaseQuery,
   validateId,
   validateIdInBody,
-  validateStringLength,
 } from '../../validations';
 import { TASK_STATUS, TASK_TYPE } from './tasks.constants';
 
@@ -131,7 +130,7 @@ export class TasksValidation {
     answer: {
       in: ['body'],
       ...validateAndSanitizeString,
-      ...validateStringLength,
+      ...DEFAULT_STRING_LENGTH,
     },
   };
 }

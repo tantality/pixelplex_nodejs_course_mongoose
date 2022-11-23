@@ -1,4 +1,5 @@
 import { CustomValidator, Schema } from 'express-validator';
+import { validateStringLength } from '../../validations';
 
 export class AuthValidation {
   private static findRussianLetters: CustomValidator = function (value: string): string {
@@ -53,13 +54,7 @@ export class AuthValidation {
         bail: true,
       },
       trim: true,
-      isLength: {
-        errorMessage: 'The number of characters of the value must be in the range from 5 to 256',
-        options: {
-          min: 5,
-          max: 256,
-        },
-      },
+      ...validateStringLength(5, 256),
     },
     ...AuthValidation.logIn,
   };

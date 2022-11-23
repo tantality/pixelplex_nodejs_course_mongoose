@@ -1,11 +1,10 @@
 import { ParamSchema, Schema } from 'express-validator';
-import { SORT_BY } from '../../constants/common.constants';
+import { DEFAULT_STRING_LENGTH, SORT_BY } from '../../constants/common.constants';
 import {
   validateAndSanitizeString,
   validateId,
   validateBaseQuery,
   checkStringIn,
-  validateStringLength,
   validateIdInBody,
   validateArray,
 } from '../../validations';
@@ -56,12 +55,12 @@ export class CardsValidation {
     'nativeWords.*': {
       in: ['body'],
       ...validateAndSanitizeString,
-      ...validateStringLength,
+      ...DEFAULT_STRING_LENGTH,
     },
     'foreignWords.*': {
       in: ['body'],
       ...validateAndSanitizeString,
-      ...validateStringLength,
+      ...DEFAULT_STRING_LENGTH,
     },
     nativeWords: {
       ...CardsValidation.validateArray,
@@ -89,13 +88,13 @@ export class CardsValidation {
       in: ['body'],
       optional: true,
       ...validateAndSanitizeString,
-      ...validateStringLength,
+      ...DEFAULT_STRING_LENGTH,
     },
     'foreignWords.*': {
       in: ['body'],
       optional: true,
       ...validateAndSanitizeString,
-      ...validateStringLength,
+      ...DEFAULT_STRING_LENGTH,
     },
     nativeWords: {
       optional: true,

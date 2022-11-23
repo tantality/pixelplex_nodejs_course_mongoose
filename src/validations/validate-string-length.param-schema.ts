@@ -1,12 +1,16 @@
 import { ParamSchema } from 'express-validator';
 
-export const validateStringLength: ParamSchema = {
-  isLength: {
-    errorMessage: 'Value must be in the range from 1 to 254 characters',
-    options: {
-      min: 1,
-      max: 254,
+export const validateStringLength = (min: number = 1, max: number = 255): ParamSchema => {
+  const length: ParamSchema = {
+    isLength: {
+      errorMessage: `Value must be in the range from ${min} to ${max} characters`,
+      options: {
+        min,
+        max,
+      },
+      bail: true,
     },
-    bail: true,
-  },
+  };
+
+  return length;
 };

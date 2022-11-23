@@ -1,27 +1,16 @@
 import { ParamSchema, Schema } from 'express-validator';
 import { SORT_BY } from '../../constants/common.constants';
-import { checkStringIn, validateAndSanitizeString, validateBaseQuery, validateId } from '../../validations';
+import {
+  checkStringIn,
+  validateAndSanitizeString,
+  validateBaseQuery,
+  validateId,
+  validateStringLength,
+} from '../../validations';
 
 export class LanguagesValidation {
-  private static codeLength: ParamSchema = {
-    isLength: {
-      errorMessage: 'Value must be in the range from 2 to 4 characters',
-      options: {
-        min: 2,
-        max: 4,
-      },
-    },
-  };
-
-  private static nameLength: ParamSchema = {
-    isLength: {
-      errorMessage: 'Value must be in the range from 2 to 50 characters',
-      options: {
-        min: 2,
-        max: 50,
-      },
-    },
-  };
+  private static codeLength: ParamSchema = validateStringLength(2, 4);
+  private static nameLength: ParamSchema = validateStringLength(2, 50);
 
   static getLanguages: Schema = {
     ...validateBaseQuery,
