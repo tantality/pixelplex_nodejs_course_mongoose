@@ -18,13 +18,6 @@ export class AuthValidation {
         bail: true,
       },
       trim: true,
-      isLength: {
-        errorMessage: 'Value can consist of a maximum of 254 characters',
-        options: {
-          max: 254,
-        },
-        bail: true,
-      },
       isEmail: true,
     },
     password: {
@@ -43,13 +36,6 @@ export class AuthValidation {
           'Value must consist of at least 8 lowercase and uppercase Latin characters, at least one digit and at least one special character (!@#$%^&*()_+=)',
         options: {
           minLength: 10,
-        },
-        bail: true,
-      },
-      isLength: {
-        errorMessage: 'Value can consist of a maximum of 20 characters',
-        options: {
-          max: 20,
         },
         bail: true,
       },
