@@ -1,6 +1,8 @@
+import { ILanguage } from './language.interface';
+
 let languageCounter = 1;
 
-export class Language {
+export class Language implements ILanguage {
   id: number;
 
   constructor(
