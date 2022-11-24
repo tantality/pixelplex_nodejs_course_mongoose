@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 import { Request } from 'express';
 
-export const logRequest = (req: Request): void => {
-  const { body, query, params } = req;
+export const logRequest = <T>(req: T): void => {
+  const { body, query, params } = req as Request;
   if (Object.keys(body).length) {
     console.log('body: ', body);
   }
