@@ -1,5 +1,5 @@
 interface IWithBaseQuery {
-  search: string;
+  search?: string;
   offset: number;
   limit: number;
   sortDirection: string;
