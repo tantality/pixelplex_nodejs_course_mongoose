@@ -1,14 +1,21 @@
 /* eslint-disable require-await */
 import { logRequest } from '../../utils/log-request.utils';
-import { CreateLanguageRequest, DeleteLanguageRequest, GetLanguagesRequest, GetOneLanguageRequest, UpdateLanguageRequest } from './types/request.types';
+import {
+  CreateLanguageRequest,
+  DeleteLanguageRequest,
+  GetLanguagesRequest,
+  GetOneLanguageRequest,
+  UpdateLanguageRequest,
+} from './types/request.types';
 import { LanguageDTO } from './language.dto';
 import { Language } from './language.entity';
+import { GetLanguagesCommon } from './types';
 
 export class LanguagesService {
   private static language = new Language('russian', 'ru', new Date(), new Date());
   private static languageDTO = new LanguageDTO(LanguagesService.language);
 
-  static findAll = async (req: GetLanguagesRequest): Promise<{ count: number; languages: LanguageDTO[] } | null> => {
+  static findAll = async (req: GetLanguagesRequest): Promise<GetLanguagesCommon | null> => {
     logRequest<GetLanguagesRequest>(req);
     return {
       count: 30,
