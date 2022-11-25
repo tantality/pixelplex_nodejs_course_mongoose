@@ -1,5 +1,5 @@
 import { Schema } from 'express-validator';
-import { validateStringLength } from '../../validations';
+import { validateIdInBody, validateStringLength } from '../../validations';
 
 export class AuthValidation {
   private static checkStrongPasswordRegExp =
@@ -38,5 +38,9 @@ export class AuthValidation {
       ...validateStringLength(5, 256),
     },
     ...AuthValidation.logIn,
+    nativeLanguageId: {
+      in: ['body'],
+      ...validateIdInBody,
+    },
   };
 }
