@@ -6,14 +6,15 @@ import {
   GetLanguagesRequest,
   GetOneLanguageRequest,
   UpdateLanguageRequest,
-} from './types/request.types';
+  GetLanguagesCommon,
+} from './types';
 import { LanguageDTO } from './language.dto';
-import { GetLanguagesCommon } from './types';
+
 import { LANGUAGE_DTO } from './languages.constants';
 
 export class LanguagesService {
   static findAll = async (req: GetLanguagesRequest): Promise<GetLanguagesCommon | null> => {
-    logRequest<GetLanguagesRequest>(req);
+    logRequest(req);
     return {
       count: 30,
       languages: [LANGUAGE_DTO],
@@ -21,22 +22,22 @@ export class LanguagesService {
   };
 
   static findById = async (req: GetOneLanguageRequest): Promise<LanguageDTO | null> => {
-    logRequest<GetOneLanguageRequest>(req);
+    logRequest(req);
     return LANGUAGE_DTO;
   };
 
   static create = async (req: CreateLanguageRequest): Promise<LanguageDTO> => {
-    logRequest<CreateLanguageRequest>(req);
+    logRequest(req);
     return LANGUAGE_DTO;
   };
 
   static update = async (req: UpdateLanguageRequest): Promise<LanguageDTO | null> => {
-    logRequest<UpdateLanguageRequest>(req);
+    logRequest(req);
     return LANGUAGE_DTO;
   };
 
   static delete = async (req: DeleteLanguageRequest): Promise<number | null> => {
-    logRequest<DeleteLanguageRequest>(req);
+    logRequest(req);
     return 1;
   };
 }

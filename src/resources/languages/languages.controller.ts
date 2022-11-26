@@ -5,10 +5,6 @@ import {
   GetLanguagesRequest,
   GetOneLanguageRequest,
   UpdateLanguageRequest,
-} from './types/request.types';
-import { LanguagesService } from './languages.service';
-import { LanguageDTO } from './language.dto';
-import {
   CreateLanguageResponse,
   DeleteLanguageResponse,
   GetLanguagesCommon,
@@ -16,6 +12,8 @@ import {
   GetOneLanguageResponse,
   UpdateLanguageResponse,
 } from './types';
+import { LanguagesService } from './languages.service';
+import { LanguageDTO } from './language.dto';
 
 export class LanguagesController {
   static getLanguages = async (req: GetLanguagesRequest, res: GetLanguagesResponse, next: NextFunction): Promise<void> => {
