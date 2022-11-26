@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { NextFunction, Response } from 'express';
+import { NextFunction } from 'express';
 import {
   CreateLanguageRequest,
   DeleteLanguageRequest,
@@ -20,27 +19,47 @@ import {
 
 export class LanguagesController {
   static getLanguages = async (req: GetLanguagesRequest, res: GetLanguagesResponse, next: NextFunction): Promise<void> => {
-    const languages = await LanguagesService.findAll(req);
-    res.status(200).json(languages as GetLanguagesCommon);
+    try {
+      const languages = await LanguagesService.findAll(req);
+      res.status(200).json(languages as GetLanguagesCommon);
+    } catch (err) {
+      next(err);
+    }
   };
 
   static getOneLanguage = async (req: GetOneLanguageRequest, res: GetOneLanguageResponse, next: NextFunction): Promise<void> => {
-    const language = await LanguagesService.findById(req);
-    res.status(200).json(language as LanguageDTO);
+    try {
+      const language = await LanguagesService.findById(req);
+      res.status(200).json(language as LanguageDTO);
+    } catch (err) {
+      next(err);
+    }
   };
 
   static createLanguage = async (req: CreateLanguageRequest, res: CreateLanguageResponse, next: NextFunction): Promise<void> => {
-    const createdLanguage = await LanguagesService.create(req);
-    res.status(201).json(createdLanguage);
+    try {
+      const createdLanguage = await LanguagesService.create(req);
+      res.status(201).json(createdLanguage);
+    } catch (err) {
+      next(err);
+    }
   };
 
   static updateLanguage = async (req: UpdateLanguageRequest, res: UpdateLanguageResponse, next: NextFunction): Promise<void> => {
-    const updatedLanguage = await LanguagesService.update(req);
-    res.status(200).json(updatedLanguage as LanguageDTO);
+    try {
+      const updatedLanguage = await LanguagesService.update(req);
+      res.status(200).json(updatedLanguage as LanguageDTO);
+    } catch (err) {
+      next(err);
+    }
   };
 
   static deleteLanguage = async (req: DeleteLanguageRequest, res: DeleteLanguageResponse, next: NextFunction): Promise<void> => {
-    const languageId = await LanguagesService.delete(req);
-    res.status(200).json({ id: languageId as number });
+    try {
+      const languageId = await LanguagesService.delete(req);
+      res.status(200).json({ id: languageId as number });
+    } catch (err) {
+      next(err);
+    }
   };
 }

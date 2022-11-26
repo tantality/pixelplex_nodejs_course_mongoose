@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction } from 'express';
 import { TasksService } from './tasks.service';
 import {
   GetTasksRequest,
@@ -17,22 +16,38 @@ import {
 
 export class TasksController {
   static getTasks = async (req: GetTasksRequest, res: GetTasksResponse, next: NextFunction): Promise<void> => {
-    const tasks = await TasksService.findAll(req);
-    res.status(200).json(tasks as GetTasksCommon);
+    try {
+      const tasks = await TasksService.findAll(req);
+      res.status(200).json(tasks as GetTasksCommon);
+    } catch (err) {
+      next(err);
+    }
   };
 
   static getStatistics = async (req: GetStatisticsRequest, res: GetStatisticsResponse, next: NextFunction): Promise<void> => {
-    const statistics = await TasksService.calculateStatistics(req);
-    res.status(200).json({ statistics: statistics as GetStatisticsCommon });
+    try {
+      const statistics = await TasksService.calculateStatistics(req);
+      res.status(200).json({ statistics: statistics as GetStatisticsCommon });
+    } catch (err) {
+      next(err);
+    }
   };
 
   static createTask = async (req: CreateTaskRequest, res: CreateTaskResponse, next: NextFunction): Promise<void> => {
-    const task = await TasksService.create(req);
-    res.status(200).json(task as CreateTaskCommon);
+    try {
+      const task = await TasksService.create(req);
+      res.status(200).json(task as CreateTaskCommon);
+    } catch (err) {
+      next(err);
+    }
   };
 
   static addAnswerToTask = async (req: AddAnswerToTaskRequest, res: AddAnswerToTaskResponse, next: NextFunction): Promise<void> => {
-    const task = await TasksService.addAnswer(req);
-    res.status(200).json(task);
+    try {
+      const task = await TasksService.addAnswer(req);
+      res.status(200).json(task);
+    } catch (err) {
+      next(err);
+    }
   };
 }
