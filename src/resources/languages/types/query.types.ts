@@ -1,3 +1,3 @@
-import { IWithBaseQuery } from '../../../types';
+import { WithBaseQuery } from '../../../types';
 
-export type GetLanguagesQuery = IWithBaseQuery;
+export type GetLanguagesQuery = WithBaseQuery;

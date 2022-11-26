@@ -1,9 +1,9 @@
-export interface IWithBaseQuery {
+export type WithBaseQuery = {
   search?: string;
   offset: number;
   limit: number;
   sortDirection: string;
   sortBy: string;
-}
+};
 
-export type BaseQueyWithLanguageId = IWithBaseQuery & { languageId?: number | string };
+export type BaseQueyWithLanguageId = WithBaseQuery & { languageId?: number | string };

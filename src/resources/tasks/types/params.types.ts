@@ -1,3 +1,3 @@
-type WithLanguageId = { taskId: number };
+type WithTaskId = { taskId: number };
 
-export type AddAnswerToTaskParams = WithLanguageId;
+export type AddAnswerToTaskParams = WithTaskId;
