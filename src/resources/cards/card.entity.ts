@@ -1,6 +1,8 @@
+import { ICard } from './card.interface';
+
 let cardCounter = 1;
 
-export class Card {
+export class Card implements ICard {
   id: number;
 
   constructor(

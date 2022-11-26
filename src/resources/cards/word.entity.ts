@@ -1,6 +1,8 @@
+import { IWord } from './word.interface';
+
 let wordCounter = 1;
 
-export class Word {
+export class Word implements IWord {
   id: number;
 
   constructor(
