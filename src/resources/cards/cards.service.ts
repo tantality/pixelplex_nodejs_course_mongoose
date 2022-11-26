@@ -1,5 +1,5 @@
 /* eslint-disable require-await */
-import { logRequest } from '../../utils/log-request.utils';
+import { logRequest } from '../../utils';
 import { CardDTO } from './card.dto';
 import { CARD_DTO } from './cards.constants';
 import { GetCardsRequest, GetCardsCommon, CreateCardRequest, UpdateCardRequest, DeleteCardRequest } from './types';

@@ -1,6 +1,6 @@
 /* eslint-disable require-await */
 import { Request } from 'express';
-import { logRequest } from '../../utils/log-request.utils';
+import { logRequest } from '../../utils';
 import { AUTH_DTO } from './auth.constants';
 import { AuthDTO } from './auth.dto';
 import { SignUpRequest, LogInRequest } from './types';

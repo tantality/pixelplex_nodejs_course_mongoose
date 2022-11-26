@@ -1,5 +1,5 @@
 /* eslint-disable require-await */
-import { logRequest } from '../../utils/log-request.utils';
+import { logRequest } from '../../utils';
 import { LANGUAGE_DTO } from '../languages/languages.constants';
 import { TaskDTO } from './task.dto';
 import { TASK_DTO } from './tasks.constants';

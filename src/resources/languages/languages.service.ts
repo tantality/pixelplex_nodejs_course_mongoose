@@ -1,5 +1,5 @@
 /* eslint-disable require-await */
-import { logRequest } from '../../utils/log-request.utils';
+import { logRequest } from '../../utils';
 import {
   CreateLanguageRequest,
   DeleteLanguageRequest,
@@ -9,7 +9,6 @@ import {
   GetLanguagesCommon,
 } from './types';
 import { LanguageDTO } from './language.dto';
-
 import { LANGUAGE_DTO } from './languages.constants';
 
 export class LanguagesService {

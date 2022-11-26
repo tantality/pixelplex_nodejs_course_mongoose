@@ -1,5 +1,5 @@
 import { ParamSchema, Schema } from 'express-validator';
-import { SORT_BY } from '../../constants/common.constants';
+import { SORT_BY } from '../../constants';
 import {
   checkStringIn,
   validateAndSanitizeString,

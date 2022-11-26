@@ -1,5 +1,5 @@
 import { Schema } from 'express-validator';
-import { SORT_DIRECTION } from '../constants/common.constants';
+import { SORT_DIRECTION } from '../constants';
 import { checkStringIn, validateAndSanitizeString, validateStringLength } from '.';
 
 export const validateBaseQuery: Schema = {
