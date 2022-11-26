@@ -1,15 +1,15 @@
-import { TASK_STATUS, TASK_TYPE } from './tasks.constants';
+import { ITask } from './task.interface';
 
 let taskCounter = 1;
 
-export class Task {
+export class Task implements ITask {
   id: number;
 
   constructor(
     public readonly userId: number,
     public readonly hiddenWordId: number,
-    public readonly type: TASK_TYPE,
-    public readonly status: TASK_STATUS,
+    public readonly type: string,
+    public readonly status: string,
     public readonly correctAnswers: string[] | null,
     public readonly receivedAnswer: string | null,
     public readonly createdAt: Date,
