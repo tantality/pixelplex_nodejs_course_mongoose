@@ -5,3 +5,5 @@ export interface IWithBaseQuery {
   sortDirection: string;
   sortBy: string;
 }
+
+export type BaseQueyWithLanguageId = IWithBaseQuery & { languageId?: number | string };

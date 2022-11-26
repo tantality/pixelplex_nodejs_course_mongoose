@@ -1,9 +1,4 @@
-import { IWithBaseQuery } from '../../../types';
+import { BaseQueyWithLanguageId } from '../../../types';
 
-interface IWithQuery extends IWithBaseQuery {
-  languageId?: number | string;
-  taskStatus?: string;
-}
-
-export type GetTasksQuery = IWithQuery;
+export type GetTasksQuery = BaseQueyWithLanguageId & { taskStatus?: string };
 export type GetStatisticsQuery = { fromDate?: Date; toDate?: Date; languagesIds?: number[] };
