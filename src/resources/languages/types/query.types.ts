@@ -1,9 +1,3 @@
-interface IWithBaseQuery {
-  search?: string;
-  offset: number;
-  limit: number;
-  sortDirection: string;
-  sortBy: string;
-}
+import { IWithBaseQuery } from '../../../types';
 
 export type GetLanguagesQuery = IWithBaseQuery;
