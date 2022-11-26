@@ -36,7 +36,7 @@ export class TasksController {
   static createTask = async (req: CreateTaskRequest, res: CreateTaskResponse, next: NextFunction): Promise<void> => {
     try {
       const task = await TasksService.create(req);
-      res.status(200).json(task as CreateTaskCommon);
+      res.status(201).json(task as CreateTaskCommon);
     } catch (err) {
       next(err);
     }
@@ -45,7 +45,7 @@ export class TasksController {
   static addAnswerToTask = async (req: AddAnswerToTaskRequest, res: AddAnswerToTaskResponse, next: NextFunction): Promise<void> => {
     try {
       const task = await TasksService.addAnswer(req);
-      res.status(200).json(task);
+      res.status(201).json(task);
     } catch (err) {
       next(err);
     }
