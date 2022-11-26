@@ -3,29 +3,16 @@ import { Request } from 'express';
 import { logRequest } from '../../utils/log-request.utils';
 import { UpdateUserRequest } from './types';
 import { UserDTO } from './user.dto';
-import { User } from './user.entity';
+import { USER_DTO } from './users.constants';
 
 export class UsersService {
-  private static user = new User(
-    1,
-    'Angelina',
-    'email@gmail.com',
-    'email@gmail.com',
-    'qwerty123',
-    'user',
-    'awdwkmkwad243',
-    new Date(),
-    new Date(),
-  );
-  private static userDTO = new UserDTO(UsersService.user);
-
   static findById = async (req: Request): Promise<UserDTO | null> => {
     logRequest(req);
-    return UsersService.userDTO;
+    return USER_DTO;
   };
 
   static update = async (req: UpdateUserRequest): Promise<UserDTO | null> => {
     logRequest(req);
-    return UsersService.userDTO;
+    return USER_DTO;
   };
 }
