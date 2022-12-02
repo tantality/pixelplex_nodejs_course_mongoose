@@ -2,7 +2,7 @@
 import { DataSource } from 'typeorm';
 import { app } from './app';
 import { config } from './config';
-import { connectToDb } from './utils/db';
+import { connectToDb } from './utils';
 
 let dbConnection: DataSource;
 async function init(): Promise<void> {
