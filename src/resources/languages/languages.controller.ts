@@ -1,4 +1,5 @@
 import { NextFunction } from 'express';
+import { NotFoundError } from '../../errors';
 import {
   CreateLanguageRequest,
   DeleteLanguageRequest,
@@ -27,8 +28,11 @@ export class LanguagesController {
 
   static getOneLanguage = async (req: GetOneLanguageRequest, res: GetOneLanguageResponse, next: NextFunction): Promise<void> => {
     try {
-      const language = await LanguagesService.findById(req);
-      res.status(200).json(language as LanguageDTO);
+      const language = await LanguagesService.findById(req.params.languageId);
+      if (!language) {
+        throw new NotFoundError('Language not found.');
+      }
+      res.status(200).json(new LanguageDTO(language));
     } catch (err) {
       next(err);
     }
@@ -36,7 +40,7 @@ export class LanguagesController {
 
   static createLanguage = async (req: CreateLanguageRequest, res: CreateLanguageResponse, next: NextFunction): Promise<void> => {
     try {
-      const createdLanguage = await LanguagesService.create(req);
+      const createdLanguage = await LanguagesService.create(req.body);
       res.status(201).json(createdLanguage);
     } catch (err) {
       next(err);
@@ -45,8 +49,8 @@ export class LanguagesController {
 
   static updateLanguage = async (req: UpdateLanguageRequest, res: UpdateLanguageResponse, next: NextFunction): Promise<void> => {
     try {
-      const updatedLanguage = await LanguagesService.update(req);
-      res.status(200).json(updatedLanguage as LanguageDTO);
+      const updatedLanguage = await LanguagesService.update(req.params.languageId, req.body);
+      res.status(200).json(updatedLanguage);
     } catch (err) {
       next(err);
     }
@@ -54,8 +58,8 @@ export class LanguagesController {
 
   static deleteLanguage = async (req: DeleteLanguageRequest, res: DeleteLanguageResponse, next: NextFunction): Promise<void> => {
     try {
-      const languageId = await LanguagesService.delete(req);
-      res.status(200).json({ id: languageId as number });
+      const idOfDeletedLanguage = await LanguagesService.delete(req.params.languageId);
+      res.status(200).json({ id: idOfDeletedLanguage });
     } catch (err) {
       next(err);
     }
