@@ -8,7 +8,6 @@ import {
   UpdateLanguageRequest,
   CreateLanguageResponse,
   DeleteLanguageResponse,
-  GetLanguagesCommon,
   GetLanguagesResponse,
   GetOneLanguageResponse,
   UpdateLanguageResponse,
@@ -19,8 +18,8 @@ import { LanguageDTO } from './language.dto';
 export class LanguagesController {
   static getLanguages = async (req: GetLanguagesRequest, res: GetLanguagesResponse, next: NextFunction): Promise<void> => {
     try {
-      const languages = await LanguagesService.findAll(req);
-      res.status(200).json(languages as GetLanguagesCommon);
+      const languages = await LanguagesService.findAndCountAll(req.query);
+      res.status(200).json(languages);
     } catch (err) {
       next(err);
     }

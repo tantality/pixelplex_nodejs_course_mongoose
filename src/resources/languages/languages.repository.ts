@@ -1,7 +1,31 @@
+import { FindOptionsOrder, FindOptionsWhere } from 'typeorm';
 import { Language } from './language.entity';
-import { CreateLanguageBody, UpdateLanguageBody } from './types';
+import { CreateLanguageBody, GetLanguagesCommon, UpdateLanguageBody } from './types';
 
 export class LanguagesRepository {
+  static findAndCountAll = async (
+    skip: number,
+    take: number,
+    where: FindOptionsWhere<Language>,
+    order: FindOptionsOrder<Language>,
+  ): Promise<GetLanguagesCommon> => {
+    const languagesAndCount = await Language.findAndCount({
+      select: {
+        id: true,
+        code: true,
+        name: true,
+        createdAt: true,
+      },
+      where,
+      order,
+      skip,
+      take,
+    });
+
+    const [languages, count] = languagesAndCount;
+    return { count, languages };
+  };
+
   static findByCode = async (code: string): Promise<Language | null> => {
     const language = await Language.findOneBy({ code });
     return language;

@@ -1,19 +1,19 @@
-/* eslint-disable require-await */
-import { logRequest } from '../../utils';
 import { BadRequestError, NotFoundError } from '../../errors';
-import { GetLanguagesRequest, GetLanguagesCommon, UpdateLanguageBody, CreateLanguageBody } from './types';
+import { GetLanguagesCommon, UpdateLanguageBody, CreateLanguageBody, GetLanguagesQuery } from './types';
 import { LanguageDTO } from './language.dto';
-import { LANGUAGE_DTO } from './languages.constants';
 import { LanguagesRepository } from './languages.repository';
 import { Language } from './language.entity';
+import { getOrderOptions, getWhereOptions } from './utils';
 
 export class LanguagesService {
-  static findAll = async (req: GetLanguagesRequest): Promise<GetLanguagesCommon | null> => {
-    logRequest(req);
-    return {
-      count: 30,
-      languages: [LANGUAGE_DTO],
-    };
+  static findAndCountAll = async ({ search, sortBy, sortDirection, limit, offset }: GetLanguagesQuery): Promise<GetLanguagesCommon> => {
+    const languagesAndCount = await LanguagesRepository.findAndCountAll(
+      offset,
+      limit,
+      getWhereOptions(search),
+      getOrderOptions(sortBy, sortDirection),
+    );
+    return languagesAndCount;
   };
 
   static findById = async (languageId: number): Promise<Language | null> => {
