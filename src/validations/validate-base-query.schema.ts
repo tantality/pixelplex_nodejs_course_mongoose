@@ -11,11 +11,14 @@ export const validateBaseQuery: Schema = {
   },
   offset: {
     in: ['query'],
+    default: {
+      options: 0,
+    },
     trim: true,
     isInt: {
-      errorMessage: 'Value must be a number greater than 0',
+      errorMessage: 'Value must be a number greater than or equal to 0',
       options: {
-        min: 1,
+        min: 0,
       },
       bail: true,
     },
