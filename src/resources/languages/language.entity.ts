@@ -1,5 +1,5 @@
 import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
-import { ILanguage } from './language.interface';
+import { ILanguage } from './types';
 
 @Entity('languages')
 export class Language extends BaseEntity implements ILanguage {
