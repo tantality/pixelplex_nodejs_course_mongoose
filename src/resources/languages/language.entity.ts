@@ -6,7 +6,6 @@ export class Language extends BaseEntity implements ILanguage {
   @PrimaryGeneratedColumn()
     id!: number;
 
-  @Index()
   @Column({ type: 'varchar', length: 255 })
     name!: string;
 
