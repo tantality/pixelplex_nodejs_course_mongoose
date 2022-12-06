@@ -1,3 +1,4 @@
+import { FindOptionsWhere } from 'typeorm';
 import { BadRequestError, NotFoundError } from '../../errors';
 import { GetLanguagesCommon, UpdateLanguageBody, CreateLanguageBody, GetLanguagesQuery } from './types';
 import { LanguageDTO } from './language.dto';
@@ -16,18 +17,13 @@ export class LanguagesService {
     return languagesAndCount;
   };
 
-  static findById = async (languageId: number): Promise<Language | null> => {
-    const language = await LanguagesRepository.findById(languageId);
-    return language;
-  };
-
-  static findByCode = async (code: string): Promise<Language | null> => {
-    const language = await LanguagesRepository.findByCode(code);
+  static findOneByCondition = async (where: FindOptionsWhere<Language>): Promise<Language | null> => {
+    const language = await LanguagesRepository.findOneByCondition(where);
     return language;
   };
 
   static create = async (body: CreateLanguageBody): Promise<LanguageDTO> => {
-    const languageWithCurrentCode = await LanguagesService.findByCode(body.code);
+    const languageWithCurrentCode = await LanguagesService.findOneByCondition({ code: body.code });
     if (languageWithCurrentCode) {
       throw new BadRequestError('The language with the specified code already exists.');
     }
@@ -37,13 +33,13 @@ export class LanguagesService {
   };
 
   static update = async (languageId: number, body: UpdateLanguageBody): Promise<LanguageDTO> => {
-    const updatableLanguage = await LanguagesService.findById(languageId);
+    const updatableLanguage = await LanguagesService.findOneByCondition({ id: languageId });
     if (!updatableLanguage) {
       throw new NotFoundError('Language not found.');
     }
 
     const { code } = body;
-    const languageWithCurrentCode = code && (await LanguagesService.findByCode(code));
+    const languageWithCurrentCode = code && (await LanguagesService.findOneByCondition({ code: body.code }));
     if (languageWithCurrentCode) {
       throw new BadRequestError('The language with the specified code already exists.');
     }
@@ -53,7 +49,7 @@ export class LanguagesService {
   };
 
   static delete = async (languageId: number): Promise<number> => {
-    const deletableLanguage = await LanguagesService.findById(languageId);
+    const deletableLanguage = await LanguagesService.findOneByCondition({ id: languageId });
     if (!deletableLanguage) {
       throw new NotFoundError('Language not found.');
     }
