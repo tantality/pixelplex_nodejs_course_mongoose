@@ -1,7 +1,6 @@
 import * as dotenv from 'dotenv';
 import { DataSourceOptions } from 'typeorm';
 import { Language } from '../resources/languages/language.entity';
-import { User } from '../resources/users/user.entity';
 
 dotenv.config();
 
@@ -12,14 +11,14 @@ export const DB: DataSourceOptions = {
   username: 'postgres',
   password: process.env.DB_PASSWORD,
   database: 'flashcards',
-  synchronize: true,
+  synchronize: false,
   logging: false,
-  entities: [Language, User],
+  entities: [Language],
 };
 
 export const config = {
   DEV: {
-    PORT: 3000,
+    PORT: 8080,
     DB,
   },
 };
