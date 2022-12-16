@@ -58,14 +58,12 @@ export class LanguagesService {
     return new LanguageDTO(updatedLanguage);
   };
 
-  static delete = async (languageId: number): Promise<number> => {
+  static delete = async (languageId: number): Promise<void> => {
     const deletableLanguage = await LanguagesService.findOneByCondition({ id: languageId });
     if (!deletableLanguage) {
       throw new NotFoundError('Language not found.');
     }
 
     await LanguagesRepository.delete(languageId);
-
-    return languageId;
   };
 }
