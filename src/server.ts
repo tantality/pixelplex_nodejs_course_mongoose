@@ -1,19 +1,22 @@
 /* eslint-disable no-console */
-import { DataSource } from 'typeorm';
+import mongoose from 'mongoose';
+import * as dotenv from 'dotenv';
 import { app } from './app';
-import { config } from './config';
-import { connectToDb } from './utils';
+dotenv.config();
 
-let dbConnection: DataSource;
-async function init(): Promise<void> {
+function connectDb(): mongoose.Connection {
+  mongoose.Promise = global.Promise;
+  mongoose.connect(process.env.MONGO_DB_CONNECTION as string);
+  return mongoose.connection;
+}
+
+function startServer(): void {
   try {
-    dbConnection = await connectToDb(config.DEV.DB);
-    app.listen(config.DEV.PORT, () => console.log(`Listening ${config.DEV.PORT}`));
+    app.listen(8080, () => console.log('Listening 8080'));
   } catch (error) {
     console.log(error);
-    dbConnection.destroy();
     process.exit(1);
   }
 }
 
-init();
+connectDb().on('error', console.log).on('disconnected', connectDb).once('open', startServer);

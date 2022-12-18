@@ -1,5 +1,4 @@
 import * as express from 'express';
-import 'reflect-metadata';
 import { processError, processNotFoundEndpoint } from './middleware';
 import { mountAuthRouter } from './modules/auth/auth.router';
 import { mountCardsRouter } from './modules/cards/cards.router';
