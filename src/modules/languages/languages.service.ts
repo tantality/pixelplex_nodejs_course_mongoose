@@ -1,4 +1,4 @@
-import { FindOptionsWhere, ILike } from 'typeorm';
+import { FindOptionsWhere, Like } from 'typeorm';
 import { BadRequestError, LANGUAGE_ALREADY_EXISTS_MESSAGE, LANGUAGE_NOT_FOUND_MESSAGE, NotFoundError } from '../../errors';
 import { UpdateLanguageBody, CreateLanguageBody, GetLanguagesQuery } from './types';
 import { LanguageDTO } from './language.dto';
@@ -17,7 +17,7 @@ export class LanguagesService {
     let whereCondition: FindOptionsWhere<Language> = {};
     if (search) {
       whereCondition = {
-        name: ILike(`%${search}%`),
+        name: Like(`%${search}%`),
       };
     }
 
