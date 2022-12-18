@@ -1,10 +1,10 @@
 import { FindOptionsWhere, Like } from 'typeorm';
+import { ObjectId } from 'mongoose';
 import { BadRequestError, LANGUAGE_ALREADY_EXISTS_MESSAGE, LANGUAGE_NOT_FOUND_MESSAGE, NotFoundError } from '../../errors';
-import { UpdateLanguageBody, CreateLanguageBody, GetLanguagesQuery } from './types';
+import { UpdateLanguageBody, CreateLanguageBody, GetLanguagesQuery, ILanguage } from './types';
 import { LanguageDTO } from './language.dto';
 import { LanguagesRepository } from './languages.repository';
-import { Language } from './language.entity';
-import { getSortingCondition } from './utils';
+import { Lang } from './language.entity';
 
 export class LanguagesService {
   static findAndCountAll = async ({
@@ -13,8 +13,8 @@ export class LanguagesService {
     sortDirection,
     limit,
     offset,
-  }: GetLanguagesQuery): Promise<{ count: number; languages: Language[] }> => {
-    let whereCondition: FindOptionsWhere<Language> = {};
+  }: GetLanguagesQuery): Promise<{ count: number; languages: Lang[] }> => {
+    let whereCondition: FindOptionsWhere<Lang> = {};
     if (search) {
       whereCondition = {
         name: Like(`%${search}%`),
@@ -25,13 +25,12 @@ export class LanguagesService {
       offset,
       limit,
       whereCondition,
-      getSortingCondition(sortBy, sortDirection),
     );
 
     return languagesAndTheirNumber;
   };
 
-  static findOneByCondition = async (whereCondition: FindOptionsWhere<Language>): Promise<Language | null> => {
+  static findOneByCondition = async (whereCondition: Partial<ILanguage>): Promise<ILanguage | null> => {
     const language = await LanguagesRepository.findOneByCondition(whereCondition);
     return language;
   };
@@ -47,8 +46,8 @@ export class LanguagesService {
     return new LanguageDTO(createdLanguage);
   };
 
-  static update = async (languageId: number, body: UpdateLanguageBody): Promise<LanguageDTO> => {
-    const languageToUpdate = await LanguagesService.findOneByCondition({ id: languageId });
+  static update = async (languageId: ObjectId, body: UpdateLanguageBody): Promise<LanguageDTO> => {
+    const languageToUpdate = await LanguagesService.findOneByCondition({ _id: languageId });
     if (!languageToUpdate) {
       throw new NotFoundError(LANGUAGE_NOT_FOUND_MESSAGE);
     }
@@ -59,13 +58,13 @@ export class LanguagesService {
       throw new BadRequestError(LANGUAGE_ALREADY_EXISTS_MESSAGE);
     }
 
-    const updatedLanguage = await LanguagesRepository.update(languageToUpdate, languageId, body);
+    const updatedLanguage = await LanguagesRepository.update(languageId, body);
 
     return new LanguageDTO(updatedLanguage);
   };
 
-  static delete = async (languageId: number): Promise<void> => {
-    const languageToDelete = await LanguagesService.findOneByCondition({ id: languageId });
+  static delete = async (languageId: ObjectId): Promise<void> => {
+    const languageToDelete = await LanguagesService.findOneByCondition({ _id: languageId });
     if (!languageToDelete) {
       throw new NotFoundError(LANGUAGE_NOT_FOUND_MESSAGE);
     }

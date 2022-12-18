@@ -1,7 +1,7 @@
 /* eslint-disable require-await */
+import { Language } from '../../models/language.model';
 import { logRequest } from '../../utils';
 import { LanguageDTO } from '../languages/language.dto';
-import { Language } from '../languages/language.entity';
 import { TaskDTO } from './task.dto';
 import { Task } from './task.entity';
 import {
