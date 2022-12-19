@@ -7,10 +7,12 @@ export const getSortingCondition = (sortBy: string, sortDir: string): { [key: st
 
   switch (sortBy) {
   case LANGUAGE_SORT_BY.NAME: {
-    return (sortingCondition = { name: sortDirection });
+    sortingCondition = { name: sortDirection };
+    break;
   }
   case LANGUAGE_SORT_BY.DATE: {
-    return (sortingCondition = { createdAt: sortDirection });
+    sortingCondition = { createdAt: sortDirection };
+    break;
   }
   }
 
