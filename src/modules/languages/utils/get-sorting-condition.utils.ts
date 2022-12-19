@@ -1,17 +1,17 @@
-import { FindOptionsOrder } from 'typeorm';
 import { SORT_DIRECTION } from '../../../types';
-import { Language } from '../language.entity';
 import { LANGUAGE_SORT_BY } from '../types';
 
-export const getSortingCondition = (sortBy: string, sortDir: string): FindOptionsOrder<Language> => {
-  let sortingCondition: FindOptionsOrder<Language> = {};
+export const getSortingCondition = (sortBy: string, sortDir: string): { [key: string]: SORT_DIRECTION } => {
+  let sortingCondition: { [key: string]: SORT_DIRECTION } = {};
   const sortDirection: SORT_DIRECTION = sortDir as SORT_DIRECTION;
 
-  if (sortBy === LANGUAGE_SORT_BY.NAME) {
-    sortingCondition = { name: sortDirection };
+  switch (sortBy) {
+  case LANGUAGE_SORT_BY.NAME: {
+    return (sortingCondition = { name: sortDirection });
   }
-  if (sortBy === LANGUAGE_SORT_BY.DATE) {
-    sortingCondition = { createdAt: sortDirection };
+  case LANGUAGE_SORT_BY.DATE: {
+    return (sortingCondition = { createdAt: sortDirection });
+  }
   }
 
   return sortingCondition;
