@@ -20,7 +20,7 @@ export class LanguagesRepository {
     return count;
   };
 
-  static findOneByCondition = async (whereCondition: Partial<ILanguage>): Promise<ILanguage | null> => {
+  static findOneByCondition = async (whereCondition: FilterQuery<ILanguage>): Promise<ILanguage | null> => {
     const language = await Language.findOne(whereCondition);
     return language;
   };
