@@ -4,9 +4,9 @@ import * as dotenv from 'dotenv';
 import { app } from './app';
 dotenv.config();
 
-function connectDb(): mongoose.Connection {
+function connectToDb(): mongoose.Connection {
   mongoose.Promise = global.Promise;
-  mongoose.connect(process.env.MONGO_DB_CONNECTION as string);
+  mongoose.connect(process.env.MONGODB_CONNECTION_URL as string);
   return mongoose.connection;
 }
 
@@ -19,4 +19,4 @@ function startServer(): void {
   }
 }
 
-connectDb().on('error', console.log).on('disconnected', connectDb).once('open', startServer);
+connectToDb().on('error', console.log).on('disconnected', connectToDb).once('open', startServer);
