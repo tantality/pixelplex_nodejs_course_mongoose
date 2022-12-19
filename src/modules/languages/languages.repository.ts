@@ -1,28 +1,23 @@
-import { ObjectId } from 'mongoose';
-import { FindOptionsWhere } from 'typeorm';
+import { FilterQuery, ObjectId, QueryOptions } from 'mongoose';
 import { Language } from '../../models/language.model';
-import { Lang } from './language.entity';
+import { SORT_DIRECTION } from '../../types';
 import { CreateLanguageBody, ILanguage, UpdateLanguageBody } from './types';
 
 export class LanguagesRepository {
   static findAndCountAll = async (
-    skip: number,
-    take: number,
-    whereCondition: FindOptionsWhere<Lang>,
-  ): Promise<{ count: number; languages: Lang[] }> => {
-    const [languages, count] = await Lang.findAndCount({
-      select: {
-        id: true,
-        code: true,
-        name: true,
-        createdAt: true,
-      },
-      where: whereCondition,
-      skip,
-      take,
-    });
+    filter: FilterQuery<ILanguage>,
+    options: QueryOptions<ILanguage>,
+    sortingCondition: { [key: string]: SORT_DIRECTION },
+  ): Promise<{ count: number; languages: ILanguage[] }> => {
+    const languages = await Language.find(filter, null, options).sort(sortingCondition);
+    const count = await LanguagesRepository.countAll(filter);
 
     return { count, languages };
+  };
+
+  static countAll = async (condition: FilterQuery<ILanguage>): Promise<number> => {
+    const count = await Language.where(condition).countDocuments();
+    return count;
   };
 
   static findOneByCondition = async (whereCondition: Partial<ILanguage>): Promise<ILanguage | null> => {

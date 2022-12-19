@@ -1,10 +1,9 @@
-import { FindOptionsWhere, Like } from 'typeorm';
-import { ObjectId } from 'mongoose';
+import { FilterQuery, ObjectId, QueryOptions } from 'mongoose';
 import { BadRequestError, LANGUAGE_ALREADY_EXISTS_MESSAGE, LANGUAGE_NOT_FOUND_MESSAGE, NotFoundError } from '../../errors';
 import { UpdateLanguageBody, CreateLanguageBody, GetLanguagesQuery, ILanguage } from './types';
 import { LanguageDTO } from './language.dto';
 import { LanguagesRepository } from './languages.repository';
-import { Lang } from './language.entity';
+import { getSortingCondition } from './utils';
 
 export class LanguagesService {
   static findAndCountAll = async ({
@@ -13,19 +12,22 @@ export class LanguagesService {
     sortDirection,
     limit,
     offset,
-  }: GetLanguagesQuery): Promise<{ count: number; languages: Lang[] }> => {
-    let whereCondition: FindOptionsWhere<Lang> = {};
+  }: GetLanguagesQuery): Promise<{ count: number; languages: ILanguage[] }> => {
+    let filter: FilterQuery<ILanguage> = {};
     if (search) {
-      whereCondition = {
-        name: Like(`%${search}%`),
+      filter = {
+        name: { $regex: new RegExp(search, 'i') },
       };
     }
 
-    const languagesAndTheirNumber = await LanguagesRepository.findAndCountAll(
-      offset,
+    const options: QueryOptions<ILanguage> = {
+      skip: offset,
       limit,
-      whereCondition,
-    );
+    };
+
+    const sortingCondition = getSortingCondition(sortBy, sortDirection);
+
+    const languagesAndTheirNumber = await LanguagesRepository.findAndCountAll(filter, options, sortingCondition);
 
     return languagesAndTheirNumber;
   };
