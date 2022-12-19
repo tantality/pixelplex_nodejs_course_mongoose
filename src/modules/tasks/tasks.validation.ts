@@ -6,7 +6,6 @@ import {
   validateArray,
   validateBaseQuery,
   validateId,
-  validateIdInBody,
 } from '../../validations';
 import { TASK_SORT_BY, TASK_STATUS, TASK_TYPE } from './types';
 
@@ -111,7 +110,7 @@ export class TasksValidation {
   static createTask: Schema = {
     foreignLanguageId: {
       in: ['body'],
-      ...validateIdInBody,
+      ...validateId,
     },
     type: {
       in: ['body'],
