@@ -1,4 +1,4 @@
-import { FilterQuery, ObjectId, QueryOptions } from 'mongoose';
+import { FilterQuery, ObjectId, ProjectionType, QueryOptions } from 'mongoose';
 import { Language } from '../../models/language.model';
 import { SORT_DIRECTION } from '../../types';
 import { CreateLanguageBody, ILanguage, UpdateLanguageBody } from './types';
@@ -9,7 +9,8 @@ export class LanguagesRepository {
     options: QueryOptions<ILanguage>,
     sortingCondition: { [key: string]: SORT_DIRECTION },
   ): Promise<{ count: number; languages: ILanguage[] }> => {
-    const languages = await Language.find(filter, null, options).sort(sortingCondition);
+    const selectionFields: ProjectionType<ILanguage> = { _id: 1, code: 1, name: 1, createdAt: 1 };
+    const languages = await Language.find(filter, selectionFields, options).sort(sortingCondition);
     const count = await LanguagesRepository.countAll(filter);
 
     return { count, languages };
