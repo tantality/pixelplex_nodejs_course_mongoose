@@ -1,8 +1,9 @@
+import { ObjectId } from 'mongoose';
 import { UpdateUserBody } from './body.types';
 
 export interface IUser {
-  id: number;
-  nativeLanguageId: number;
+  _id: ObjectId;
+  nativeLanguageId: ObjectId | null;
   name: string;
   email: string;
   normalizedEmail: string;
@@ -18,5 +19,5 @@ export enum USER_ROLE {
   ADMIN = 'admin',
 }
 
-export type CreateUserData = Pick<IUser, 'name' | 'email' | 'normalizedEmail' | 'password' | 'nativeLanguageId'>;
+export type CreateUserData = Pick<IUser, 'name' | 'email' | 'normalizedEmail' | 'password'> & { nativeLanguageId: ObjectId };
 export type UpdateUserData = UpdateUserBody | { refreshToken: string };
