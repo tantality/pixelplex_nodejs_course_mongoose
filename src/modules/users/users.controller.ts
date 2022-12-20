@@ -1,4 +1,5 @@
 import { NextFunction, Request } from 'express';
+import { NotFoundError, USER_NOT_FOUND_MESSAGE } from '../../errors';
 import { GetOneUserResponse, UpdateUserRequest, UpdateUserResponse } from './types';
 import { UserDTO } from './user.dto';
 import { UsersService } from './users.service';
@@ -6,8 +7,17 @@ import { UsersService } from './users.service';
 export class UsersController {
   static getOneUser = async (req: Request, res: GetOneUserResponse, next: NextFunction): Promise<void> => {
     try {
-      const user = await UsersService.findById(req);
-      res.status(200).json(user as UserDTO);
+      const { userId } = req;
+      if (!userId) {
+        throw new NotFoundError(USER_NOT_FOUND_MESSAGE);
+      }
+
+      const user = await UsersService.findOneByCondition({ _id: userId });
+      if (!user) {
+        throw new NotFoundError(USER_NOT_FOUND_MESSAGE);
+      }
+
+      res.status(200).json(new UserDTO(user));
     } catch (err) {
       next(err);
     }
