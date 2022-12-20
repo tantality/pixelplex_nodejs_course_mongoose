@@ -1,7 +1,8 @@
 /* eslint-disable no-console */
-import mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
+import mongoose from 'mongoose';
 import { app } from './app';
+import './configs/mongoose.config';
 dotenv.config();
 
 function connectToDb(): mongoose.Connection {
