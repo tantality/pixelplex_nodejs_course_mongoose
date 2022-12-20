@@ -1,31 +1,27 @@
 /* eslint-disable require-await */
 import { Request } from 'express';
 import { logRequest } from '../../utils';
-import { User } from '../users/user.entity';
-import { AuthDTO } from './auth.dto';
-import { SignUpRequest, LogInRequest } from './types';
+import { SignUpRequest, LogInRequest, IAuth } from './types';
 
-const user = new User(1, 'Angelina', 'email@gmail.com', 'email@gmail.com', 'qwerty123', 'user', 'awdwkmkwad243', new Date(), new Date());
-const authDTO = new AuthDTO(user, 'amdwiwnf');
+const authData = { id: 1, accessToken: 'accessToken', refreshToken: 'refreshToken' } as IAuth;
 
 export class AuthService {
-  static signUp = async (req: SignUpRequest): Promise<AuthDTO> => {
+  static signUp = async (req: SignUpRequest): Promise<IAuth> => {
     logRequest(req);
-    return authDTO;
+    return authData;
   };
 
-  static logIn = async (req: LogInRequest): Promise<AuthDTO> => {
+  static logIn = async (req: LogInRequest): Promise<IAuth> => {
     logRequest(req);
-    return authDTO;
+    return authData;
   };
 
-  static logOut = async (req: Request): Promise<number> => {
+  static logOut = async (req: Request): Promise<void> => {
     logRequest(req);
-    return 1;
   };
 
-  static refresh = async (req: Request): Promise<AuthDTO> => {
+  static refresh = async (req: Request): Promise<IAuth> => {
     logRequest(req);
-    return authDTO;
+    return authData;
   };
 }
