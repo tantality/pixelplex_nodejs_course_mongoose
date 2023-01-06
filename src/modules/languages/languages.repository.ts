@@ -21,8 +21,10 @@ export class LanguagesRepository {
     const sortingCondition = getSortingCondition(sortBy, sortDirection);
     const fieldsToSelect: ProjectionType<ILanguage> = { _id: 1, code: 1, name: 1, createdAt: 1 };
 
-    const languages = await Language.find(filter, fieldsToSelect, options).sort(sortingCondition);
-    const count = await LanguagesRepository.countAll(filter);
+    const languagesQuery = Language.find(filter, fieldsToSelect, options).sort(sortingCondition);
+    const languagesNumberPromise = LanguagesRepository.countAll(filter);
+
+    const [count, languages] = await Promise.all([languagesNumberPromise, languagesQuery]);
 
     return { count, languages };
   };
@@ -37,7 +39,7 @@ export class LanguagesRepository {
     }
 
     return filter;
-  };
+  }
 
   static countAll = async (condition: FilterQuery<ILanguage>): Promise<number> => {
     const count = await Language.where(condition).countDocuments();
