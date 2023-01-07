@@ -1,10 +1,10 @@
 import { FilterQuery, ObjectId } from 'mongoose';
 import { User } from '../../models/user.model';
-import { CreateUserData, IUser, UpdateUserData } from './types';
+import { CreateUserData, IUser, UpdateUserBody } from './types';
 
 export class UsersRepository {
-  static findOneByCondition = async (whereCondition: FilterQuery<IUser>): Promise<IUser | null> => {
-    const user = await User.findOne(whereCondition);
+  static findOneByCondition = async (condition: FilterQuery<IUser>): Promise<IUser | null> => {
+    const user = await User.findOne(condition);
     return user;
   };
 
@@ -13,8 +13,8 @@ export class UsersRepository {
     return createdUser;
   };
 
-  static update = async (_id: ObjectId, userData: UpdateUserData): Promise<IUser> => {
-    await User.updateOne({ _id }, { ...userData });
+  static update = async (_id: ObjectId, body: UpdateUserBody): Promise<IUser> => {
+    await User.updateOne({ _id }, { ...body });
 
     const updatedUser = (await UsersRepository.findOneByCondition({ _id })) as IUser;
 

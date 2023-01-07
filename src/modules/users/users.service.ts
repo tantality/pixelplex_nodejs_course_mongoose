@@ -8,13 +8,12 @@ import {
   USER_NOT_FOUND_MESSAGE,
 } from '../../errors';
 import { LanguagesService } from '../languages/languages.service';
-import { CreateUserData, IUser, UpdateUserData } from './types';
+import { CreateUserData, IUser, UpdateUserBody } from './types';
 import { UsersRepository } from './users.repository';
-import { isUpdateUserBodyType } from './utils';
 
 export class UsersService {
-  static findOneByCondition = async (whereCondition: FilterQuery<IUser>): Promise<IUser | null> => {
-    const user = await UsersRepository.findOneByCondition(whereCondition);
+  static findOneByCondition = async (condition: FilterQuery<IUser>): Promise<IUser | null> => {
+    const user = await UsersRepository.findOneByCondition(condition);
     return user;
   };
 
@@ -34,22 +33,18 @@ export class UsersService {
     return createdUser;
   };
 
-  static update = async (userId: ObjectId, userData: UpdateUserData): Promise<IUser> => {
+  static update = async (userId: ObjectId, body: UpdateUserBody): Promise<IUser> => {
     const userToUpdate = await UsersService.findOneByCondition({ _id: userId });
     if (!userToUpdate) {
       throw new NotFoundError(USER_NOT_FOUND_MESSAGE);
     }
 
-    let nativeLanguage = null;
-
-    if (isUpdateUserBodyType(userData)) {
-      nativeLanguage = await LanguagesService.findOneByCondition({ _id: userData.nativeLanguageId });
-      if (!nativeLanguage) {
-        throw new NotFoundError(LANGUAGE_NOT_FOUND_MESSAGE);
-      }
+    const nativeLanguage = await LanguagesService.findOneByCondition({ _id: body.nativeLanguageId });
+    if (!nativeLanguage) {
+      throw new NotFoundError(LANGUAGE_NOT_FOUND_MESSAGE);
     }
 
-    const updatedUser = await UsersRepository.update(userId, userData);
+    const updatedUser = await UsersRepository.update(userId, body);
 
     return updatedUser;
   };
