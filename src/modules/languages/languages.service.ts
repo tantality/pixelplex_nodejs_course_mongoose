@@ -1,34 +1,12 @@
-import { FilterQuery, ObjectId, QueryOptions } from 'mongoose';
+import { FilterQuery, ObjectId } from 'mongoose';
 import { BadRequestError, LANGUAGE_ALREADY_EXISTS_MESSAGE, LANGUAGE_NOT_FOUND_MESSAGE, NotFoundError } from '../../errors';
 import { UpdateLanguageBody, CreateLanguageBody, GetLanguagesQuery, ILanguage } from './types';
 import { LanguageDTO } from './language.dto';
 import { LanguagesRepository } from './languages.repository';
-import { getSortingCondition } from './utils';
 
 export class LanguagesService {
-  static findAndCountAll = async ({
-    search,
-    sortBy,
-    sortDirection,
-    limit,
-    offset,
-  }: GetLanguagesQuery): Promise<{ count: number; languages: ILanguage[] }> => {
-    let filter: FilterQuery<ILanguage> = {};
-    if (search) {
-      filter = {
-        name: { $regex: new RegExp(search, 'i') },
-      };
-    }
-
-    const options: QueryOptions<ILanguage> = {
-      skip: offset,
-      limit,
-    };
-
-    const sortingCondition = getSortingCondition(sortBy, sortDirection);
-
-    const languagesAndTheirNumber = await LanguagesRepository.findAndCountAll(filter, options, sortingCondition);
-
+  static findAndCountAll = async (query: GetLanguagesQuery): Promise<{ count: number; languages: ILanguage[] }> => {
+    const languagesAndTheirNumber = await LanguagesRepository.findAndCountAll(query);
     return languagesAndTheirNumber;
   };
 

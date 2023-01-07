@@ -1,20 +1,26 @@
-import { SORT_DIRECTION } from '../../../types';
-import { LANGUAGE_SORT_BY } from '../types';
+import { SORT_DIRECTION, SORT_DIRECTION_AS_NUMBER } from '../../../types';
+import { ILanguage, LANGUAGE_SORT_BY } from '../types';
 
-export const getSortingCondition = (sortBy: string, sortDir: string): { [key: string]: SORT_DIRECTION } => {
-  let sortingCondition: { [key: string]: SORT_DIRECTION } = {};
-  const sortDirection: SORT_DIRECTION = sortDir as SORT_DIRECTION;
+type SortingCondition = { [key in keyof ILanguage]?: SORT_DIRECTION_AS_NUMBER };
+
+export const getSortingCondition = (sortBy: string, sortDirection: string): SortingCondition => {
+  let sortingCondition: SortingCondition = {};
+  const sortDirectionAsNumber = getSortDirectionAsNumber(sortDirection as SORT_DIRECTION);
 
   switch (sortBy) {
   case LANGUAGE_SORT_BY.NAME: {
-    sortingCondition = { name: sortDirection };
+    sortingCondition = { nameInLowercase: sortDirectionAsNumber };
     break;
   }
   case LANGUAGE_SORT_BY.DATE: {
-    sortingCondition = { createdAt: sortDirection };
+    sortingCondition = { createdAt: sortDirectionAsNumber };
     break;
   }
   }
 
   return sortingCondition;
+};
+
+const getSortDirectionAsNumber = (sortDirection: SORT_DIRECTION): SORT_DIRECTION_AS_NUMBER => {
+  return sortDirection === SORT_DIRECTION.ASC ? SORT_DIRECTION_AS_NUMBER.ASC : SORT_DIRECTION_AS_NUMBER.DESC;
 };
