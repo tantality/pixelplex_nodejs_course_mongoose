@@ -7,7 +7,7 @@ dotenv.config();
 
 function connectToDb(): mongoose.Connection {
   mongoose.Promise = global.Promise;
-  mongoose.connect(process.env.MONGODB_CONNECTION_URL as string);
+  mongoose.connect(process.env.MONGODB_CONNECTION_URI as string);
   return mongoose.connection;
 }
 
