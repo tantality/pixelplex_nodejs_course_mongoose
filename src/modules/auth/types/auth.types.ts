@@ -1,5 +1,7 @@
+import { ObjectId } from 'mongoose';
+
 export interface IAuth {
-  id: number;
+  id: ObjectId;
   refreshToken: string;
   accessToken: string;
 }
