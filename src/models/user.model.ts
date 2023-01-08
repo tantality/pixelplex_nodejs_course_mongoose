@@ -9,7 +9,6 @@ const userSchema = new Schema<IUser>(
     normalizedEmail: { type: String, unique: true, index: true, required: true },
     password: { type: String, required: true },
     role: { type: String, enum: [USER_ROLE.USER, USER_ROLE.ADMIN], default: USER_ROLE.USER },
-    refreshTokens: { type: [String], index: true, default: null },
   },
   { timestamps: true },
 );

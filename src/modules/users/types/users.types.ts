@@ -8,7 +8,6 @@ export interface IUser {
   normalizedEmail: string;
   password: string;
   role: string;
-  refreshTokens: string[] | null;
   createdAt: Date;
   updatedAt: Date;
 }
