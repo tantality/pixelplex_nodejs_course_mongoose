@@ -30,11 +30,7 @@ export class TasksValidation {
     ...validateBaseQuery,
     languageId: {
       in: ['query'],
-      optional: {
-        options: {
-          checkFalsy: true,
-        },
-      },
+      optional: true,
       ...validateId,
     },
     taskStatus: {
