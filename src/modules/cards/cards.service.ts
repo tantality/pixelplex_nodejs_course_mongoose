@@ -1,8 +1,11 @@
 /* eslint-disable require-await */
 import { ObjectId } from 'mongoose';
-import { logRequest } from '../../utils';
+import { checkLanguagesValidity, logRequest } from '../../utils';
+import { IUser } from '../users/types';
+import { UsersService } from '../users/users.service';
 import { CardDTO } from './card.dto';
-import { GetCardsRequest, CreateCardRequest, UpdateCardRequest, DeleteCardRequest, ICard } from './types';
+import { CardsRepository } from './cards.repository';
+import { GetCardsRequest, UpdateCardRequest, DeleteCardRequest, ICard, CreateCardBody } from './types';
 
 const card: ICard = {
   _id: '639f76' as unknown as ObjectId,
@@ -25,9 +28,14 @@ export class CardsService {
     };
   };
 
-  static create = async (req: CreateCardRequest): Promise<CardDTO> => {
-    logRequest(req);
-    return cardDTO;
+  static create = async (userId: ObjectId, body: CreateCardBody): Promise<CardDTO> => {
+    const { nativeLanguageId } = (await UsersService.findOneByCondition({ _id: userId })) as IUser;
+
+    await checkLanguagesValidity(nativeLanguageId, body.foreignLanguageId);
+
+    const createdCard = await CardsRepository.create(userId, nativeLanguageId as ObjectId, body);
+
+    return new CardDTO(createdCard);
   };
 
   static update = async (req: UpdateCardRequest): Promise<CardDTO> => {
