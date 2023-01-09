@@ -1,6 +1,7 @@
 import { Schema, Types, model } from 'mongoose';
+import { ICard } from '../modules/cards/types';
 
-const cardSchema = new Schema(
+const cardSchema = new Schema<ICard>(
   {
     userId: { ref: 'user', type: Types.ObjectId, index: true, required: true },
     nativeLanguageId: { ref: 'language', type: Types.ObjectId, required: true },

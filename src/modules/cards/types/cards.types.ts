@@ -1,8 +1,12 @@
+import { ObjectId } from 'mongoose';
+
 export interface ICard {
-  id: number;
-  userId: number;
-  nativeLanguageId: number;
-  foreignLanguageId: number;
+  _id: ObjectId;
+  userId: ObjectId;
+  nativeLanguageId: ObjectId;
+  nativeWords: string[];
+  foreignLanguageId: ObjectId;
+  foreignWords: string[];
   createdAt: Date;
   updatedAt: Date;
 }
