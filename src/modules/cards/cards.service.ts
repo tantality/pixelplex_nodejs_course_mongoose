@@ -1,11 +1,12 @@
 /* eslint-disable require-await */
-import { ObjectId } from 'mongoose';
+import { FilterQuery, ObjectId } from 'mongoose';
+import { NotFoundError, CARD_NOT_FOUND_MESSAGE } from '../../errors';
 import { checkLanguagesValidity, logRequest } from '../../utils';
 import { IUser } from '../users/types';
 import { UsersService } from '../users/users.service';
 import { CardDTO } from './card.dto';
 import { CardsRepository } from './cards.repository';
-import { GetCardsRequest, UpdateCardRequest, DeleteCardRequest, ICard, CreateCardBody } from './types';
+import { GetCardsRequest, DeleteCardRequest, ICard, CreateCardBody, UpdateCardBody } from './types';
 
 const card: ICard = {
   _id: '639f76' as unknown as ObjectId,
@@ -28,6 +29,11 @@ export class CardsService {
     };
   };
 
+  static findOneByCondition = async (condition: FilterQuery<ICard>): Promise<ICard | null> => {
+    const card = await CardsRepository.findOneByCondition(condition);
+    return card;
+  };
+
   static create = async (userId: ObjectId, body: CreateCardBody): Promise<CardDTO> => {
     const { nativeLanguageId } = (await UsersService.findOneByCondition({ _id: userId })) as IUser;
 
@@ -38,9 +44,19 @@ export class CardsService {
     return new CardDTO(createdCard);
   };
 
-  static update = async (req: UpdateCardRequest): Promise<CardDTO> => {
-    logRequest(req);
-    return cardDTO;
+  static update = async (userId: ObjectId, cardId: ObjectId, body: UpdateCardBody): Promise<CardDTO> => {
+    const cardToUpdate = await CardsService.findOneByCondition({ userId, _id: cardId });
+    if (!cardToUpdate) {
+      throw new NotFoundError(CARD_NOT_FOUND_MESSAGE);
+    }
+
+    const { nativeLanguageId } = (await UsersService.findOneByCondition({ _id: userId })) as IUser;
+
+    await checkLanguagesValidity(nativeLanguageId, body.foreignLanguageId);
+
+    const updatedCard = await CardsRepository.update(cardId, body);
+
+    return new CardDTO(updatedCard);
   };
 
   static delete = async (req: DeleteCardRequest): Promise<void> => {

@@ -32,7 +32,7 @@ export class CardsController {
 
   static updateCard = async (req: UpdateCardRequest, res: UpdateCardResponse, next: NextFunction): Promise<void> => {
     try {
-      const updatedCard = await CardsService.update(req);
+      const updatedCard = await CardsService.update(req.userId as ObjectId, req.params.cardId, req.body);
       res.status(200).json(updatedCard);
     } catch (err) {
       next(err);
