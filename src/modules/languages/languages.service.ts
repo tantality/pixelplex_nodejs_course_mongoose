@@ -1,6 +1,7 @@
 import { FilterQuery, ObjectId } from 'mongoose';
 import { BadRequestError, LANGUAGE_ALREADY_EXISTS_MESSAGE, LANGUAGE_CANNOT_BE_DELETED_MESSAGE, LANGUAGE_NOT_FOUND_MESSAGE, NotFoundError } from '../../errors';
 import { UsersService } from '../users/users.service';
+import { CardsService } from '../cards/cards.service';
 import { UpdateLanguageBody, CreateLanguageBody, GetLanguagesQuery, ILanguage } from './types';
 import { LanguageDTO } from './language.dto';
 import { LanguagesRepository } from './languages.repository';
@@ -50,8 +51,14 @@ export class LanguagesService {
       throw new NotFoundError(LANGUAGE_NOT_FOUND_MESSAGE);
     }
 
-    const languageIsUsedInUsers = await UsersService.findOneByCondition({ nativeLanguageId: languageId });
-    if (languageIsUsedInUsers) {
+    const languageIsUsedInUsersPromise = UsersService.findOneByCondition({ nativeLanguageId: languageId });
+    const languageIsUsedInCardsPromise = CardsService.findOneByCondition({
+      $or: [{ nativeLanguageId: languageId }, { foreignLanguageId: languageId }],
+    });
+
+    const [languageIsUsedInUsers, languageIsUsedInCards] = await Promise.all([languageIsUsedInUsersPromise, languageIsUsedInCardsPromise]);
+
+    if (languageIsUsedInUsers || languageIsUsedInCards) {
       throw new BadRequestError(LANGUAGE_CANNOT_BE_DELETED_MESSAGE);
     }
 
