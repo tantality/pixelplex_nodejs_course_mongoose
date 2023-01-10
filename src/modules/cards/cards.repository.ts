@@ -20,4 +20,8 @@ export class CardsRepository {
 
     return updatedLanguage;
   };
+
+  static delete = async (_id: ObjectId): Promise<void> => {
+    await Card.deleteOne({ _id });
+  };
 }

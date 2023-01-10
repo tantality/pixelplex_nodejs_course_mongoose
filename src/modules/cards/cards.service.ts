@@ -6,7 +6,7 @@ import { IUser } from '../users/types';
 import { UsersService } from '../users/users.service';
 import { CardDTO } from './card.dto';
 import { CardsRepository } from './cards.repository';
-import { GetCardsRequest, DeleteCardRequest, ICard, CreateCardBody, UpdateCardBody } from './types';
+import { GetCardsRequest, ICard, CreateCardBody, UpdateCardBody } from './types';
 
 const card: ICard = {
   _id: '639f76' as unknown as ObjectId,
@@ -59,7 +59,12 @@ export class CardsService {
     return new CardDTO(updatedCard);
   };
 
-  static delete = async (req: DeleteCardRequest): Promise<void> => {
-    logRequest(req);
+  static delete = async (userId: ObjectId, cardId: ObjectId): Promise<void> => {
+    const cardToDelete = await CardsService.findOneByCondition({ userId, _id: cardId });
+    if (!cardToDelete) {
+      throw new NotFoundError(CARD_NOT_FOUND_MESSAGE);
+    }
+
+    await CardsRepository.delete(cardId);
   };
 }

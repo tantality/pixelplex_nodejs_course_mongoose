@@ -41,7 +41,7 @@ export class CardsController {
 
   static deleteCard = async (req: DeleteCardRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      await CardsService.delete(req);
+      await CardsService.delete(req.userId as ObjectId, req.params.cardId);
       res.status(200).json();
     } catch (err) {
       next(err);
