@@ -17,7 +17,7 @@ export class CardsRepository {
     };
 
     const cardsQuery = Card.find(filter, projectionFields, options).transform((cards) => {
-      return transformCards(cards, sortDirection);
+      return transformCards(cards, sortDirection, sortBy);
     });
     const cardsNumberPromise = CardsRepository.countAll(filter);
 
@@ -46,9 +46,7 @@ export class CardsRepository {
   };
 
   private static getLanguagesCondition = (languageId?: ObjectId): FilterQuery<ICard> => {
-    const languagesCondition = languageId
-      ? { $or: [{ nativeLanguageId: languageId }, { foreignLanguageId: languageId }] }
-      : {};
+    const languagesCondition = languageId ? { $or: [{ nativeLanguageId: languageId }, { foreignLanguageId: languageId }] } : {};
 
     return languagesCondition;
   };

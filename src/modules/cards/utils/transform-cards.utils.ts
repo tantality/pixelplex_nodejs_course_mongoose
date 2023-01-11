@@ -1,8 +1,8 @@
 import { SORT_DIRECTION } from '../../../types';
 import { ICard, CARD_SORT_BY } from '../types';
 
-export const transformCards = (cards: ICard[], sortDirection: string): ICard[] => {
-  if (cards.length && sortDirection !== CARD_SORT_BY.DATE) {
+export const transformCards = (cards: ICard[], sortDirection: string, sortBy: string): ICard[] => {
+  if (cards.length && sortBy === CARD_SORT_BY.WORD) {
     cards.map((card) => {
       sortWords(card.nativeWords, sortDirection);
       sortWords(card.foreignWords, sortDirection);
