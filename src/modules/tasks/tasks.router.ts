@@ -12,9 +12,9 @@ router.get('/statistics', checkSchema(TasksValidation.getStatistics), validatePa
 router.post('/', checkSchema(TasksValidation.createTask), validatePayload<CreateTaskRequest>, TasksController.createTask);
 router.post(
   '/:taskId/answer',
-  checkSchema(TasksValidation.addAnswerToTask),
+  checkSchema(TasksValidation.updateTask),
   validatePayload<UpdateTaskRequest>,
-  TasksController.addAnswerToTask,
+  TasksController.updateTask,
 );
 
 export function mountTasksRouter(app: Application): void {

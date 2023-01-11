@@ -42,9 +42,9 @@ export class TasksController {
     }
   };
 
-  static addAnswerToTask = async (req: UpdateTaskRequest, res: UpdateTaskResponse, next: NextFunction): Promise<void> => {
+  static updateTask = async (req: UpdateTaskRequest, res: UpdateTaskResponse, next: NextFunction): Promise<void> => {
     try {
-      const task = await TasksService.addAnswer(req);
+      const task = await TasksService.update(req);
       res.status(201).json(task);
     } catch (err) {
       next(err);

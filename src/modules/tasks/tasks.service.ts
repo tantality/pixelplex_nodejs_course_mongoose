@@ -69,7 +69,7 @@ export class TasksService {
     };
   };
 
-  static addAnswer = async (req: UpdateTaskRequest): Promise<TaskDTO> => {
+  static update = async (req: UpdateTaskRequest): Promise<TaskDTO> => {
     logRequest(req);
     return taskDTO;
   };
