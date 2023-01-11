@@ -14,7 +14,7 @@ import {
 export class CardsController {
   static getCards = async (req: GetCardsRequest, res: GetCardsResponse, next: NextFunction): Promise<void> => {
     try {
-      const cards = await CardsService.findAll(req);
+      const cards = await CardsService.findAndCountAll(req.userId as ObjectId, req.query);
       res.status(200).json(cards);
     } catch (err) {
       next(err);

@@ -1,32 +1,16 @@
-/* eslint-disable require-await */
 import { FilterQuery, ObjectId } from 'mongoose';
 import { NotFoundError, CARD_NOT_FOUND_MESSAGE } from '../../errors';
-import { checkLanguagesValidity, logRequest } from '../../utils';
+import { checkLanguagesValidity } from '../../utils';
 import { IUser } from '../users/types';
 import { UsersService } from '../users/users.service';
 import { CardDTO } from './card.dto';
 import { CardsRepository } from './cards.repository';
-import { GetCardsRequest, ICard, CreateCardBody, UpdateCardBody } from './types';
-
-const card: ICard = {
-  _id: '639f76' as unknown as ObjectId,
-  userId: '639f76' as unknown as ObjectId,
-  nativeLanguageId: '639f76' as unknown as ObjectId,
-  nativeWords: ['привет'],
-  foreignLanguageId: '639f76' as unknown as ObjectId,
-  foreignWords: ['hello'],
-  createdAt: new Date(),
-  updatedAt: new Date(),
-};
-const cardDTO = new CardDTO(card);
+import { ICard, CreateCardBody, UpdateCardBody, GetCardsQuery } from './types';
 
 export class CardsService {
-  static findAll = async (req: GetCardsRequest): Promise<{ count: number; cards: CardDTO[] }> => {
-    logRequest(req);
-    return {
-      count: 30,
-      cards: [cardDTO],
-    };
+  static findAndCountAll = async (userId: ObjectId, query: GetCardsQuery): Promise<{ count: number; cards: ICard[] }> => {
+    const cardsAndTheirNumber = await CardsRepository.findAndCountAll(userId, query);
+    return cardsAndTheirNumber;
   };
 
   static findOneByCondition = async (condition: FilterQuery<ICard>): Promise<ICard | null> => {
