@@ -46,9 +46,8 @@ export class CardsRepository {
   };
 
   private static getLanguagesCondition = (languageId?: ObjectId): FilterQuery<ICard> => {
-    const languageIdCondition = languageId ? languageId : null;
-    const languagesCondition = languageIdCondition
-      ? { $or: [{ nativeLanguageId: languageIdCondition }, { foreignLanguageId: languageIdCondition }] }
+    const languagesCondition = languageId
+      ? { $or: [{ nativeLanguageId: languageId }, { foreignLanguageId: languageId }] }
       : {};
 
     return languagesCondition;
