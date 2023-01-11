@@ -5,4 +5,4 @@ import { CreateTaskCommon, GetStatisticsCommon, GetTasksCommon } from './common.
 export type GetTasksResponse = Response<GetTasksCommon>;
 export type GetStatisticsResponse = Response<{ statistics: GetStatisticsCommon }>;
 export type CreateTaskResponse = Response<CreateTaskCommon>;
-export type AddAnswerToTaskResponse = Response<TaskDTO>;
+export type UpdateTaskResponse = Response<TaskDTO>;

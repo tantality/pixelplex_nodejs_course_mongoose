@@ -1,9 +1,15 @@
+import { ObjectId } from 'mongoose';
+import { LanguageDTO } from '../../languages/language.dto';
+import { TaskDTO } from '../task.dto';
+
 export interface ITask {
-  id: number;
-  userId: number;
-  hiddenWordId: number;
+  _id: ObjectId;
+  userId: ObjectId;
+  nativeLanguageId: ObjectId;
+  foreignLanguageId: ObjectId;
   type: string;
   status: string;
+  hiddenWord: string;
   correctAnswers: string[] | null;
   receivedAnswer: string | null;
   createdAt: Date;
@@ -24,3 +30,8 @@ export enum TASK_TYPE {
 export enum TASK_SORT_BY {
   DATE = 'date',
 }
+
+export type CreateTaskData = Pick<ITask, 'hiddenWord' | 'userId' | 'type'>;
+export type CreatedTaskDTO = Pick<TaskDTO, 'id' | 'nativeLanguageId' | 'foreignLanguageId' | 'type' | 'hiddenWord'>;
+export type Answers = Record<TASK_STATUS, number>;
+export type Statistics = { language: LanguageDTO; answers: Answers };

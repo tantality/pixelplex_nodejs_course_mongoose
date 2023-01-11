@@ -1,28 +1,33 @@
 /* eslint-disable require-await */
-import { Language } from '../../models/language.model';
+import { ObjectId } from 'mongoose';
 import { logRequest } from '../../utils';
-import { LanguageDTO } from '../languages/language.dto';
 import { TaskDTO } from './task.dto';
-import { Task } from './task.entity';
 import {
   GetTasksRequest,
   GetTasksCommon,
   GetStatisticsCommon,
   GetStatisticsRequest,
   CreateTaskCommon,
-  AddAnswerToTaskRequest,
+  UpdateTaskRequest,
   CreateTaskRequest,
+  ITask,
 } from './types';
 
-const language = new Language();
-language.id = 1;
-language.code = 'russian';
-language.name = 'ru';
-language.createdAt = new Date();
-language.updatedAt = new Date();
-const languageDTO = new LanguageDTO(language);
-const task = new Task(1, 1, 'to_foreign', 'correct', ['привет'], 'привет', new Date(), new Date());
-const taskDTO = new TaskDTO(task, 'hello', 1, 2);
+const id = '23832rhi22' as unknown as ObjectId;
+const task: ITask = {
+  _id: id,
+  userId: id,
+  nativeLanguageId: id,
+  foreignLanguageId: id,
+  type: 'to_foreign',
+  status: 'correct',
+  hiddenWord: 'привет',
+  correctAnswers: ['hi'],
+  receivedAnswer: 'hi',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+const taskDTO = new TaskDTO(task);
 
 export class TasksService {
   static findAll = async (req: GetTasksRequest): Promise<GetTasksCommon | null> => {
@@ -37,7 +42,12 @@ export class TasksService {
     logRequest(req);
     const statistics = [
       {
-        language: languageDTO,
+        language: {
+          id,
+          name: 'russian',
+          code: 'ru',
+          createdAt: new Date(),
+        },
         answers: {
           correct: 10,
           incorrect: 1,
@@ -51,15 +61,15 @@ export class TasksService {
   static create = async (req: CreateTaskRequest): Promise<CreateTaskCommon> => {
     logRequest(req);
     return {
-      id: 1,
-      nativeLanguageId: 1,
-      foreignLanguageId: 2,
+      id,
+      nativeLanguageId: id,
+      foreignLanguageId: id,
       word: 'hello',
       type: 'to_native',
     };
   };
 
-  static addAnswer = async (req: AddAnswerToTaskRequest): Promise<TaskDTO> => {
+  static addAnswer = async (req: UpdateTaskRequest): Promise<TaskDTO> => {
     logRequest(req);
     return taskDTO;
   };

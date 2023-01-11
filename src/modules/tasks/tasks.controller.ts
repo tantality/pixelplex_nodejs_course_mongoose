@@ -7,8 +7,8 @@ import {
   GetStatisticsResponse,
   CreateTaskRequest,
   CreateTaskResponse,
-  AddAnswerToTaskRequest,
-  AddAnswerToTaskResponse,
+  UpdateTaskRequest,
+  UpdateTaskResponse,
   GetTasksCommon,
   GetStatisticsCommon,
   CreateTaskCommon,
@@ -42,7 +42,7 @@ export class TasksController {
     }
   };
 
-  static addAnswerToTask = async (req: AddAnswerToTaskRequest, res: AddAnswerToTaskResponse, next: NextFunction): Promise<void> => {
+  static addAnswerToTask = async (req: UpdateTaskRequest, res: UpdateTaskResponse, next: NextFunction): Promise<void> => {
     try {
       const task = await TasksService.addAnswer(req);
       res.status(201).json(task);
