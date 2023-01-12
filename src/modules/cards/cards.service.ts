@@ -18,6 +18,16 @@ export class CardsService {
     return card;
   };
 
+  static findRandomWord = async (
+    userId: ObjectId,
+    cardNativeLanguageId: ObjectId,
+    cardForeignLanguageId: ObjectId,
+    wordLanguageId: ObjectId,
+  ): Promise<string | null> => {
+    const word = await CardsRepository.findRandomWord(userId, cardNativeLanguageId, cardForeignLanguageId, wordLanguageId);
+    return word;
+  };
+
   static create = async (userId: ObjectId, body: CreateCardBody): Promise<CardDTO> => {
     const { nativeLanguageId } = (await UsersService.findOneByCondition({ _id: userId })) as IUser;
 

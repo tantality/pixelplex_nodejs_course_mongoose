@@ -1,7 +1,7 @@
-import { FilterQuery, ObjectId, ProjectionType, QueryOptions } from 'mongoose';
+import { FilterQuery, ObjectId, ProjectionType, QueryOptions, Types } from 'mongoose';
 import { Card } from '../../models/card.model';
 import { CreateCardBody, GetCardsQuery, ICard, UpdateCardBody } from './types';
-import { getSortingCondition, transformCards } from './utils';
+import { getRandomInt, getRandomWord, getSortingCondition, transformCards } from './utils';
 
 export class CardsRepository {
   static findAndCountAll = async (
@@ -19,9 +19,9 @@ export class CardsRepository {
     const cardsQuery = Card.find(filter, projectionFields, options).transform((cards) => {
       return transformCards(cards, sortDirection, sortBy);
     });
-    const cardsNumberPromise = CardsRepository.countAll(filter);
+    const cardsCountPromise = CardsRepository.countAll(filter);
 
-    const [count, cards] = await Promise.all([cardsNumberPromise, cardsQuery]);
+    const [count, cards] = await Promise.all([cardsCountPromise, cardsQuery]);
 
     return { count, cards };
   };
@@ -47,7 +47,6 @@ export class CardsRepository {
 
   private static getLanguagesCondition = (languageId?: ObjectId): FilterQuery<ICard> => {
     const languagesCondition = languageId ? { $or: [{ nativeLanguageId: languageId }, { foreignLanguageId: languageId }] } : {};
-
     return languagesCondition;
   };
 
@@ -59,6 +58,54 @@ export class CardsRepository {
   static findOneByCondition = async (condition: FilterQuery<ICard>): Promise<ICard | null> => {
     const card = await Card.findOne(condition);
     return card;
+  };
+
+  static findRandomWord = async (
+    userId: ObjectId,
+    cardNativeLanguageId: ObjectId,
+    cardForeignLanguageId: ObjectId,
+    wordLanguageId: ObjectId,
+  ): Promise<string | null> => {
+    const findCondition: FilterQuery<ICard> = {
+      userId: new Types.ObjectId(userId.toString()),
+      nativeLanguageId: new Types.ObjectId(cardNativeLanguageId.toString()),
+      foreignLanguageId: new Types.ObjectId(cardForeignLanguageId.toString()),
+    };
+
+    const cardCount = await CardsRepository.countAll(findCondition);
+    if (!cardCount) {
+      return null;
+    }
+
+    const skipCardsCount = getRandomInt(cardCount);
+    const targetWordArrayName = wordLanguageId === cardNativeLanguageId ? '$nativeWords' : '$foreignWords';
+
+    const wordsAndTheirCount = await CardsRepository.findWordsAndTheirCount(findCondition, targetWordArrayName, skipCardsCount);
+
+    return getRandomWord(wordsAndTheirCount);
+  };
+
+  static findWordsAndTheirCount = async (
+    condition: FilterQuery<ICard>,
+    targetWordArrayName: '$nativeWords' | '$foreignWords',
+    skipCardsCount: number,
+  ): Promise<{ count: number; words: string[] }> => {
+    const wordsAndTheirCountQueryResult: { count: number; words: string[] }[] = await Card.aggregate([
+      { $match: condition },
+      {
+        $project: {
+          _id: 0,
+          count: { $size: targetWordArrayName },
+          words: targetWordArrayName,
+        },
+      },
+      { $skip: skipCardsCount },
+      { $limit: 1 },
+    ]);
+
+    const wordsAndTheirCount = wordsAndTheirCountQueryResult[0];
+
+    return wordsAndTheirCount;
   };
 
   static create = async (userId: ObjectId, nativeLanguageId: ObjectId, body: CreateCardBody): Promise<ICard> => {
