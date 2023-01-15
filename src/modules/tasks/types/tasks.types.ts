@@ -31,7 +31,7 @@ export enum TASK_SORT_BY {
   DATE = 'date',
 }
 
-export type CreateTaskData = Pick<ITask, 'hiddenWord' | 'userId' | 'type'>;
-export type CreatedTaskDTO = Pick<TaskDTO, 'id' | 'nativeLanguageId' | 'foreignLanguageId' | 'type' | 'hiddenWord'>;
+export type CreateTaskData = Pick<ITask, 'hiddenWord' | 'userId' | 'type' | 'nativeLanguageId' | 'foreignLanguageId'>;
+export type CreatedTaskDTO = Pick<TaskDTO, 'id' | 'nativeLanguageId' | 'foreignLanguageId' | 'type'> & { word: string };
 export type Answers = Record<TASK_STATUS, number>;
 export type Statistics = { language: LanguageDTO; answers: Answers };
