@@ -1,16 +1,22 @@
 /* eslint-disable require-await */
 import { ObjectId } from 'mongoose';
-import { logRequest } from '../../utils';
+import { BadRequestError, NO_CARDS_FOUND_WITH_THE_LANGUAGE_MESSAGE } from '../../errors';
+import { checkLanguagesValidity, logRequest } from '../../utils';
+import { CardsService } from '../cards/cards.service';
+import { IUser } from '../users/types';
+import { UsersService } from '../users/users.service';
 import { TaskDTO } from './task.dto';
+import { TasksRepository } from './tasks.repository';
 import {
   GetTasksRequest,
   GetTasksCommon,
   GetStatisticsCommon,
   GetStatisticsRequest,
-  CreateTaskCommon,
   UpdateTaskRequest,
-  CreateTaskRequest,
   ITask,
+  CreatedTaskDTO,
+  CreateTaskBody,
+  TASK_TYPE,
 } from './types';
 
 const id = '23832rhi22' as unknown as ObjectId;
@@ -58,14 +64,27 @@ export class TasksService {
     return statistics;
   };
 
-  static create = async (req: CreateTaskRequest): Promise<CreateTaskCommon> => {
-    logRequest(req);
+  static create = async (userId: ObjectId, { type, foreignLanguageId }: CreateTaskBody): Promise<CreatedTaskDTO> => {
+    let { nativeLanguageId } = (await UsersService.findOneByCondition({ _id: userId })) as IUser;
+
+    await checkLanguagesValidity(nativeLanguageId, foreignLanguageId);
+
+    nativeLanguageId = nativeLanguageId as ObjectId;
+
+    const wordLanguageId = type === TASK_TYPE.TO_NATIVE ? foreignLanguageId : nativeLanguageId;
+    const hiddenWord = await CardsService.findRandomWord(userId, nativeLanguageId, foreignLanguageId, wordLanguageId);
+    if (!hiddenWord) {
+      throw new BadRequestError(NO_CARDS_FOUND_WITH_THE_LANGUAGE_MESSAGE);
+    }
+
+    const createdTask = await TasksRepository.create({ userId, hiddenWord, type, nativeLanguageId, foreignLanguageId });
+
     return {
-      id,
-      nativeLanguageId: id,
-      foreignLanguageId: id,
-      word: 'hello',
-      type: 'to_native',
+      id: createdTask._id,
+      nativeLanguageId,
+      foreignLanguageId,
+      word: hiddenWord,
+      type,
     };
   };
 

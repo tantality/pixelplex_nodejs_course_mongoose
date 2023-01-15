@@ -1,4 +1,5 @@
 import { NextFunction } from 'express';
+import { ObjectId } from 'mongoose';
 import { TasksService } from './tasks.service';
 import {
   GetTasksRequest,
@@ -11,7 +12,6 @@ import {
   UpdateTaskResponse,
   GetTasksCommon,
   GetStatisticsCommon,
-  CreateTaskCommon,
 } from './types';
 
 export class TasksController {
@@ -35,8 +35,8 @@ export class TasksController {
 
   static createTask = async (req: CreateTaskRequest, res: CreateTaskResponse, next: NextFunction): Promise<void> => {
     try {
-      const task = await TasksService.create(req);
-      res.status(201).json(task as CreateTaskCommon);
+      const createdTask = await TasksService.create(req.userId as ObjectId, req.body);
+      res.status(201).json(createdTask);
     } catch (err) {
       next(err);
     }
