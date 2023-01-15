@@ -15,7 +15,7 @@ const taskSchema = new Schema<ITask>(
       index: true,
       required: true,
     },
-    correctAnswers: { type: [String], default: null },
+    correctAnswers: { type: [String] },
     receivedAnswer: { type: String, default: null },
   },
   { timestamps: true },
