@@ -1,6 +1,12 @@
 /* eslint-disable require-await */
-import { ObjectId } from 'mongoose';
-import { BadRequestError, NO_CARDS_FOUND_WITH_THE_LANGUAGE_MESSAGE } from '../../errors';
+import { FilterQuery, ObjectId } from 'mongoose';
+import {
+  ANSWER_TO_TASK_ALREADY_EXISTS_MESSAGE,
+  BadRequestError,
+  NotFoundError,
+  NO_CARDS_FOUND_WITH_THE_LANGUAGE_MESSAGE,
+  TASK_NOT_FOUND_MESSAGE,
+} from '../../errors';
 import { checkLanguagesValidity, logRequest } from '../../utils';
 import { CardsService } from '../cards/cards.service';
 import { IUser } from '../users/types';
@@ -12,12 +18,15 @@ import {
   GetTasksCommon,
   GetStatisticsCommon,
   GetStatisticsRequest,
-  UpdateTaskRequest,
   ITask,
   CreatedTaskDTO,
   CreateTaskBody,
   TASK_TYPE,
+  TASK_STATUS,
+  UpdateTaskBody,
+  UpdateTaskParams,
 } from './types';
+import { getAnswerStatus } from './utils';
 
 const id = '23832rhi22' as unknown as ObjectId;
 const task: ITask = {
@@ -42,6 +51,11 @@ export class TasksService {
       count: 30,
       tasks: [taskDTO],
     };
+  };
+
+  static findOneByCondition = async (condition: FilterQuery<ITask>): Promise<ITask | null> => {
+    const task = await TasksRepository.findOneByCondition(condition);
+    return task;
   };
 
   static calculateStatistics = async (req: GetStatisticsRequest): Promise<GetStatisticsCommon | null> => {
@@ -88,8 +102,26 @@ export class TasksService {
     };
   };
 
-  static update = async (req: UpdateTaskRequest): Promise<TaskDTO> => {
-    logRequest(req);
-    return taskDTO;
+  static update = async (userId: ObjectId, { taskId }: UpdateTaskParams, { answer }: UpdateTaskBody): Promise<TaskDTO> => {
+    const taskToUpdate = await TasksService.findOneByCondition({ _id: taskId, userId });
+    if (!taskToUpdate) {
+      throw new NotFoundError(TASK_NOT_FOUND_MESSAGE);
+    }
+
+    const { _id, hiddenWord, type, status, nativeLanguageId, foreignLanguageId } = taskToUpdate;
+
+    if (status !== TASK_STATUS.UNANSWERED) {
+      throw new BadRequestError(ANSWER_TO_TASK_ALREADY_EXISTS_MESSAGE);
+    }
+
+    const taskDataToFindAnswers = { hiddenWord, userId, type, nativeLanguageId, foreignLanguageId };
+    const correctAnswers = await CardsService.findCorrectAnswersToTask(taskDataToFindAnswers);
+
+    const answerStatus = getAnswerStatus(correctAnswers, answer);
+
+    const taskDataToUpdate = { correctAnswers, receivedAnswer: answer, status: answerStatus };
+    const updatedTask = await TasksRepository.update(_id, taskDataToUpdate);
+
+    return new TaskDTO(updatedTask);
   };
 }

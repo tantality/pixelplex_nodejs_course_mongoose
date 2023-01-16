@@ -44,8 +44,8 @@ export class TasksController {
 
   static updateTask = async (req: UpdateTaskRequest, res: UpdateTaskResponse, next: NextFunction): Promise<void> => {
     try {
-      const task = await TasksService.update(req);
-      res.status(201).json(task);
+      const updatedTask = await TasksService.update(req.userId as ObjectId, req.params, req.body);
+      res.status(200).json(updatedTask);
     } catch (err) {
       next(err);
     }

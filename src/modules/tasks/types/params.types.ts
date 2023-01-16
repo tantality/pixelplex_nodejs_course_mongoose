@@ -1,1 +1,3 @@
-export type UpdateTaskParams = { taskId: number };
+import { ObjectId } from 'mongoose';
+
+export type UpdateTaskParams = { taskId: ObjectId };
