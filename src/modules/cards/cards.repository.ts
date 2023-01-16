@@ -1,7 +1,16 @@
-import { FilterQuery, ObjectId, ProjectionType, QueryOptions, Types } from 'mongoose';
+import { FilterQuery, ObjectId, ProjectionType, QueryOptions } from 'mongoose';
 import { Card } from '../../models/card.model';
-import { CreateCardBody, GetCardsQuery, ICard, UpdateCardBody } from './types';
-import { getRandomInt, getRandomWord, getSortingCondition, transformCards } from './utils';
+import { FindAnswersTaskData, TASK_TYPE } from '../tasks/types';
+import { CARD_WORD_ARRAY, CreateCardBody, GetCardsQuery, ICard, UpdateCardBody } from './types';
+import {
+  getRandomInt,
+  getRandomWord,
+  getSortingCondition,
+  transformCards,
+  getCorrectAnswers,
+  recreateObjectWithObjectIdFields,
+  recreateObjectIdField,
+} from './utils';
 
 export class CardsRepository {
   static findAndCountAll = async (
@@ -66,11 +75,13 @@ export class CardsRepository {
     cardForeignLanguageId: ObjectId,
     wordLanguageId: ObjectId,
   ): Promise<string | null> => {
-    const findCondition: FilterQuery<ICard> = {
-      userId: new Types.ObjectId(userId.toString()),
-      nativeLanguageId: new Types.ObjectId(cardNativeLanguageId.toString()),
-      foreignLanguageId: new Types.ObjectId(cardForeignLanguageId.toString()),
+    const condition: FilterQuery<ICard> = {
+      userId,
+      nativeLanguageId: cardNativeLanguageId,
+      foreignLanguageId: cardForeignLanguageId,
     };
+
+    const findCondition: FilterQuery<ICard> = recreateObjectWithObjectIdFields(condition);
 
     const cardCount = await CardsRepository.countAll(findCondition);
     if (!cardCount) {
@@ -106,6 +117,55 @@ export class CardsRepository {
     const wordsAndTheirCount = wordsAndTheirCountQueryResult[0];
 
     return wordsAndTheirCount;
+  };
+
+  static findCorrectAnswersToTask = async (taskData: FindAnswersTaskData): Promise<string[]> => {
+    const findCondition = CardsRepository.getConditionToFindCorrectAnswers(taskData);
+    const arrayNameToFindCorrectAnswersIn = CardsRepository.getArrayNameToFindCorrectAnswersIn(taskData.type as TASK_TYPE);
+
+    const correctAnswersQueryResult: { correctAnswers: string[] }[] = await Card.aggregate([
+      { $match: findCondition },
+      { $unwind: `$${arrayNameToFindCorrectAnswersIn}` },
+      {
+        $group: {
+          _id: null,
+          correctAnswers: {
+            $addToSet: `$${arrayNameToFindCorrectAnswersIn}`,
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          correctAnswers: 1,
+        },
+      },
+    ]);
+
+    return getCorrectAnswers(correctAnswersQueryResult);
+  };
+
+  private static getConditionToFindCorrectAnswers = (taskData: FindAnswersTaskData): FilterQuery<ICard> => {
+    const { userId, type, nativeLanguageId, foreignLanguageId, hiddenWord } = taskData;
+
+    const arrayNameToFindHiddenWordIn = CardsRepository.getArrayNameToFindHiddenWordIn(type as TASK_TYPE);
+
+    const condition: FilterQuery<ICard> = {
+      userId: recreateObjectIdField(userId),
+      nativeLanguageId,
+      foreignLanguageId,
+      [arrayNameToFindHiddenWordIn]: hiddenWord,
+    };
+
+    return condition;
+  };
+
+  private static getArrayNameToFindHiddenWordIn = (type: TASK_TYPE): string => {
+    return type === TASK_TYPE.TO_NATIVE ? CARD_WORD_ARRAY.FOREIGN_WORDS : CARD_WORD_ARRAY.NATIVE_WORDS;
+  };
+
+  private static getArrayNameToFindCorrectAnswersIn = (type: TASK_TYPE): string => {
+    return type === TASK_TYPE.TO_NATIVE ? CARD_WORD_ARRAY.NATIVE_WORDS : CARD_WORD_ARRAY.FOREIGN_WORDS;
   };
 
   static create = async (userId: ObjectId, nativeLanguageId: ObjectId, body: CreateCardBody): Promise<ICard> => {

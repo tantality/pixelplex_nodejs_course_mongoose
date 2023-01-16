@@ -1,6 +1,7 @@
 import { FilterQuery, ObjectId } from 'mongoose';
 import { NotFoundError, CARD_NOT_FOUND_MESSAGE } from '../../errors';
 import { checkLanguagesValidity } from '../../utils';
+import { FindAnswersTaskData } from '../tasks/types';
 import { IUser } from '../users/types';
 import { UsersService } from '../users/users.service';
 import { CardDTO } from './card.dto';
@@ -26,6 +27,11 @@ export class CardsService {
   ): Promise<string | null> => {
     const word = await CardsRepository.findRandomWord(userId, cardNativeLanguageId, cardForeignLanguageId, wordLanguageId);
     return word;
+  };
+
+  static findCorrectAnswersToTask = async (taskData: FindAnswersTaskData): Promise<string[]> => {
+    const correctAnswers = await CardsRepository.findCorrectAnswersToTask(taskData);
+    return correctAnswers;
   };
 
   static create = async (userId: ObjectId, body: CreateCardBody): Promise<CardDTO> => {

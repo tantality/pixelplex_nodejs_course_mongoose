@@ -15,3 +15,8 @@ export enum CARD_SORT_BY {
   WORD = 'word',
   DATE = 'date',
 }
+
+export enum CARD_WORD_ARRAY {
+  NATIVE_WORDS = 'nativeWords',
+  FOREIGN_WORDS = 'foreignWords',
+}
