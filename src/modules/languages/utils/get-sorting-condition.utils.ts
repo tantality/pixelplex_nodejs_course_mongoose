@@ -1,10 +1,9 @@
-import { SORT_DIRECTION, SORT_DIRECTION_AS_NUMBER } from '../../../types';
+import { SortingConditionWithDirectionAsNumber, SORT_DIRECTION } from '../../../types';
+import { getSortDirectionAsNumber } from '../../../utils';
 import { ILanguage, LANGUAGE_SORT_BY } from '../types';
 
-type SortingCondition = { [key in keyof ILanguage]?: SORT_DIRECTION_AS_NUMBER };
-
-export const getSortingCondition = (sortBy: string, sortDirection: string): SortingCondition => {
-  let sortingCondition: SortingCondition = {};
+export const getSortingCondition = (sortBy: string, sortDirection: string): SortingConditionWithDirectionAsNumber<ILanguage> => {
+  let sortingCondition: SortingConditionWithDirectionAsNumber<ILanguage> = {};
   const sortDirectionAsNumber = getSortDirectionAsNumber(sortDirection as SORT_DIRECTION);
 
   switch (sortBy) {
@@ -19,8 +18,4 @@ export const getSortingCondition = (sortBy: string, sortDirection: string): Sort
   }
 
   return sortingCondition;
-};
-
-const getSortDirectionAsNumber = (sortDirection: SORT_DIRECTION): SORT_DIRECTION_AS_NUMBER => {
-  return sortDirection === SORT_DIRECTION.ASC ? SORT_DIRECTION_AS_NUMBER.ASC : SORT_DIRECTION_AS_NUMBER.DESC;
 };

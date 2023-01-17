@@ -1,10 +1,8 @@
-import { SORT_DIRECTION } from '../../../types';
+import { SortingCondition, SORT_DIRECTION } from '../../../types';
 import { CARD_SORT_BY, ICard } from '../types';
 
-type SortingCondition = { [key in keyof Omit<ICard, 'nativeWords' | 'foreignWOrds'>]?: SORT_DIRECTION };
-
-export const getSortingCondition = (sortBy: string, sortDir: string): SortingCondition => {
-  let sortingCondition: SortingCondition = {};
+export const getSortingCondition = (sortBy: string, sortDir: string): SortingCondition<Omit<ICard, 'nativeWords' | 'foreignWOrds'>> => {
+  let sortingCondition: SortingCondition<Omit<ICard, 'nativeWords' | 'foreignWOrds'>> = {};
   const sortDirection: SORT_DIRECTION = sortDir as SORT_DIRECTION;
 
   switch (sortBy) {
