@@ -14,8 +14,6 @@ import { UsersService } from '../users/users.service';
 import { TaskDTO } from './task.dto';
 import { TasksRepository } from './tasks.repository';
 import {
-  GetTasksRequest,
-  GetTasksCommon,
   GetStatisticsCommon,
   GetStatisticsRequest,
   ITask,
@@ -25,32 +23,16 @@ import {
   TASK_STATUS,
   UpdateTaskBody,
   UpdateTaskParams,
+  GetTasksQuery,
 } from './types';
 import { getAnswerStatus } from './utils';
 
 const id = '23832rhi22' as unknown as ObjectId;
-const task: ITask = {
-  _id: id,
-  userId: id,
-  nativeLanguageId: id,
-  foreignLanguageId: id,
-  type: 'to_foreign',
-  status: 'correct',
-  hiddenWord: 'привет',
-  correctAnswers: ['hi'],
-  receivedAnswer: 'hi',
-  createdAt: new Date(),
-  updatedAt: new Date(),
-};
-const taskDTO = new TaskDTO(task);
 
 export class TasksService {
-  static findAll = async (req: GetTasksRequest): Promise<GetTasksCommon | null> => {
-    logRequest(req);
-    return {
-      count: 30,
-      tasks: [taskDTO],
-    };
+  static findAndCountAll = async (userId: ObjectId, query: GetTasksQuery): Promise<{ count: number; tasks: ITask[] }> => {
+    const tasksAndTheirNumber = await TasksRepository.findAndCountAll(userId, query);
+    return tasksAndTheirNumber;
   };
 
   static findOneByCondition = async (condition: FilterQuery<ITask>): Promise<ITask | null> => {
