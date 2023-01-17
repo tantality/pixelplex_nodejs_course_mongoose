@@ -2,6 +2,7 @@ import { Aggregate, FilterQuery, ObjectId, ProjectionType } from 'mongoose';
 import { Task } from '../../models/task.model';
 import { recreateObjectIdField } from '../cards/utils';
 import { CreateTaskData, GetTasksQuery, ITask, UpdateTaskData } from './types';
+import { createSortingCondition } from './utils';
 
 export class TasksRepository {
   static findAndCountAll = async (userId: ObjectId, query: GetTasksQuery): Promise<{ count: number; tasks: ITask[] }> => {
@@ -9,11 +10,13 @@ export class TasksRepository {
 
     const findCondition = TasksRepository.createConditionToFindTasks({ ...conditionParameters, userId });
     const fieldSelectionConfiguration = TasksRepository.createDTOFieldSelectionConfiguration();
+    const sortingCondition = createSortingCondition(sortBy, sortDirection);
 
     const tasksCountPromise = TasksRepository.countAll(findCondition);
     const tasksAggregate: Aggregate<ITask[]> = Task.aggregate([
       { $match: findCondition },
       { $project: fieldSelectionConfiguration as { [field: string]: any } },
+      { $sort: sortingCondition },
       { $skip: offset },
       { $limit: limit },
     ]);
