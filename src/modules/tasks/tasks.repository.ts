@@ -1,8 +1,8 @@
 import { Aggregate, FilterQuery, ObjectId, ProjectionType } from 'mongoose';
 import { Task } from '../../models/task.model';
 import { recreateObjectIdField } from '../cards/utils';
-import { CreateTaskData, GetTasksQuery, ITask, UpdateTaskData } from './types';
-import { createSortingCondition } from './utils';
+import { CreateTaskData, GetStatisticsQuery, GetTasksQuery, ITask, Statistics, UpdateTaskData } from './types';
+import { createSortingCondition, isObjectEmpty } from './utils';
 
 export class TasksRepository {
   static findAndCountAll = async (userId: ObjectId, query: GetTasksQuery): Promise<{ count: number; tasks: ITask[] }> => {
@@ -90,6 +90,83 @@ export class TasksRepository {
     return task;
   };
 
+  static calculateStatistics = async (userId: ObjectId, query: GetStatisticsQuery): Promise<{ statistics: Statistics[] }> => {
+    const findCondition = TasksRepository.createFindConditionToCalculateStatistics({ ...query, userId });
+
+    const taskStatistics: ITask[] = await Task.aggregate([{ $match: findCondition }]);
+
+    return { statistics: [] };
+  };
+
+  private static createFindConditionToCalculateStatistics = (
+    conditionParameters: GetStatisticsQuery & { userId: ObjectId },
+  ): FilterQuery<ITask> => {
+    const { fromDate, toDate, languageIds, userId } = conditionParameters;
+
+    const hiddenWordLanguageIdCondition = TasksRepository.createHiddenWordLanguageIdInIdsCondition(languageIds);
+    const createdAtCondition = TasksRepository.createCreatedAtCondition(fromDate, toDate);
+
+    const condition: FilterQuery<ITask> = {
+      userId: recreateObjectIdField(userId),
+      ...hiddenWordLanguageIdCondition,
+      ...createdAtCondition,
+    };
+
+    return condition;
+  };
+
+  private static createHiddenWordLanguageIdInIdsCondition = (languageIds?: ObjectId[]): FilterQuery<ITask> => {
+    if (!languageIds) {
+      return {};
+    }
+
+    const recreatedLanguageIds = languageIds.map((languageId) => {
+      return recreateObjectIdField(languageId);
+    });
+
+    const hiddenWordLanguageIdInIdsCondition = { hiddenWordLanguageId: { $in: recreatedLanguageIds } };
+
+    return hiddenWordLanguageIdInIdsCondition;
+  };
+
+  private static createCreatedAtCondition = (fromDate?: Date, toDate?: Date): FilterQuery<ITask> => {
+    const fromDateCondition = TasksRepository.createLimitingDateFromBelowCondition(fromDate);
+    const toDateCondition = TasksRepository.createLimitingDateFromAboveCondition(toDate);
+
+    if (TasksRepository.areDateConditionsEmpty(fromDateCondition, toDateCondition)) {
+      return {};
+    }
+
+    const createdAtCondition = { createdAt: { ...fromDateCondition, ...toDateCondition } };
+
+    return createdAtCondition;
+  };
+
+  private static createLimitingDateFromBelowCondition = (fromDate?: Date): FilterQuery<ITask> => {
+    if (!fromDate) {
+      return {};
+    }
+
+    const fromDateCondition = { $gte: fromDate };
+
+    return fromDateCondition;
+  };
+
+  private static createLimitingDateFromAboveCondition = (toDate?: Date): FilterQuery<ITask> => {
+    if (!toDate) {
+      return {};
+    }
+
+    const toDateCondition = { $lte: toDate };
+
+    return toDateCondition;
+  };
+
+  private static areDateConditionsEmpty = (fromDate: FilterQuery<ITask>, toDate: FilterQuery<ITask>): boolean => {
+    const conditionsAreEmpty = isObjectEmpty(fromDate) && isObjectEmpty(toDate);
+    return conditionsAreEmpty;
+  };
+
   static create = async (taskData: CreateTaskData): Promise<ITask> => {
     const createdTask = await Task.create(taskData);
     return createdTask;
@@ -98,8 +175,8 @@ export class TasksRepository {
   static update = async (_id: ObjectId, taskData: UpdateTaskData): Promise<ITask> => {
     await Task.updateOne({ _id }, taskData);
 
-    const updatedTask = (await TasksRepository.findOneByCondition({ _id })) as ITask;
+    const updatedTask1 = (await TasksRepository.findOneByCondition({ _id })) as ITask;
 
-    return updatedTask;
+    return updatedTask1;
   };
 }

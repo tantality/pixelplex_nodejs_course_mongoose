@@ -7,15 +7,13 @@ import {
   NO_CARDS_FOUND_WITH_THE_LANGUAGE_MESSAGE,
   TASK_NOT_FOUND_MESSAGE,
 } from '../../errors';
-import { checkLanguagesValidity, logRequest } from '../../utils';
+import { checkLanguagesValidity } from '../../utils';
 import { CardsService } from '../cards/cards.service';
 import { IUser } from '../users/types';
 import { UsersService } from '../users/users.service';
 import { TaskDTO } from './task.dto';
 import { TasksRepository } from './tasks.repository';
 import {
-  GetStatisticsCommon,
-  GetStatisticsRequest,
   ITask,
   CreatedTaskDTO,
   CreateTaskBody,
@@ -24,10 +22,10 @@ import {
   UpdateTaskBody,
   UpdateTaskParams,
   GetTasksQuery,
+  GetStatisticsQuery,
+  Statistics,
 } from './types';
 import { getAnswerStatus } from './utils';
-
-const id = '23832rhi22' as unknown as ObjectId;
 
 export class TasksService {
   static findAndCountAll = async (userId: ObjectId, query: GetTasksQuery): Promise<{ count: number; tasks: ITask[] }> => {
@@ -40,23 +38,8 @@ export class TasksService {
     return task;
   };
 
-  static calculateStatistics = async (req: GetStatisticsRequest): Promise<GetStatisticsCommon | null> => {
-    logRequest(req);
-    const statistics = [
-      {
-        language: {
-          id,
-          name: 'russian',
-          code: 'ru',
-          createdAt: new Date(),
-        },
-        answers: {
-          correct: 10,
-          incorrect: 1,
-        },
-      },
-    ];
-
+  static calculateStatistics = async (userId: ObjectId, query: GetStatisticsQuery): Promise<{ statistics: Statistics[] }> => {
+    const statistics = await TasksRepository.calculateStatistics(userId, query);
     return statistics;
   };
 
@@ -67,13 +50,20 @@ export class TasksService {
 
     nativeLanguageId = nativeLanguageId as ObjectId;
 
-    const wordLanguageId = type === TASK_TYPE.TO_NATIVE ? foreignLanguageId : nativeLanguageId;
-    const hiddenWord = await CardsService.findRandomWord(userId, nativeLanguageId, foreignLanguageId, wordLanguageId);
+    const hiddenWordLanguageId = type === TASK_TYPE.TO_NATIVE ? foreignLanguageId : nativeLanguageId;
+    const hiddenWord = await CardsService.findRandomWord(userId, nativeLanguageId, foreignLanguageId, hiddenWordLanguageId);
     if (!hiddenWord) {
       throw new BadRequestError(NO_CARDS_FOUND_WITH_THE_LANGUAGE_MESSAGE);
     }
 
-    const createdTask = await TasksRepository.create({ userId, hiddenWord, type, nativeLanguageId, foreignLanguageId });
+    const createdTask = await TasksRepository.create({
+      userId,
+      hiddenWord,
+      type,
+      nativeLanguageId,
+      foreignLanguageId,
+      hiddenWordLanguageId,
+    });
 
     return {
       id: createdTask._id,

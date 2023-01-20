@@ -10,7 +10,6 @@ import {
   CreateTaskResponse,
   UpdateTaskRequest,
   UpdateTaskResponse,
-  GetStatisticsCommon,
 } from './types';
 
 export class TasksController {
@@ -25,8 +24,8 @@ export class TasksController {
 
   static getStatistics = async (req: GetStatisticsRequest, res: GetStatisticsResponse, next: NextFunction): Promise<void> => {
     try {
-      const statistics = await TasksService.calculateStatistics(req);
-      res.status(200).json({ statistics: statistics as GetStatisticsCommon });
+      const statistics = await TasksService.calculateStatistics(req.userId as ObjectId, req.query);
+      res.status(200).json(statistics);
     } catch (err) {
       next(err);
     }
