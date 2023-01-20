@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongoose';
 import { ITask } from './types';
 
-export class TaskDTO implements Omit<ITask, 'updatedAt' | 'userId' | '_id'> {
+export class TaskDTO implements Omit<ITask, 'updatedAt' | 'userId' | 'hiddenWordLanguageId' | '_id'> {
   public readonly id: ObjectId;
   public readonly nativeLanguageId: ObjectId;
   public readonly foreignLanguageId: ObjectId;

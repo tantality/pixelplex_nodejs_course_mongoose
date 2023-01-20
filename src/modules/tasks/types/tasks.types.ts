@@ -10,6 +10,7 @@ export interface ITask {
   type: string;
   status: string;
   hiddenWord: string;
+  hiddenWordLanguageId: ObjectId;
   correctAnswers: string[] | null;
   receivedAnswer: string | null;
   createdAt: Date;
@@ -31,7 +32,10 @@ export enum TASK_SORT_BY {
   DATE = 'date',
 }
 
-export type CreateTaskData = Pick<ITask, 'hiddenWord' | 'userId' | 'type' | 'nativeLanguageId' | 'foreignLanguageId'>;
+export type CreateTaskData = Pick<
+ITask,
+'hiddenWord' | 'userId' | 'type' | 'nativeLanguageId' | 'foreignLanguageId' | 'hiddenWordLanguageId'
+>;
 export type CreatedTaskDTO = Pick<TaskDTO, 'id' | 'nativeLanguageId' | 'foreignLanguageId' | 'type'> & { word: string };
 export type UpdateTaskData = Pick<ITask, 'correctAnswers' | 'status' | 'receivedAnswer'>;
 export type FindAnswersTaskData = Pick<ITask, 'hiddenWord' | 'userId' | 'type' | 'nativeLanguageId' | 'foreignLanguageId'>;
