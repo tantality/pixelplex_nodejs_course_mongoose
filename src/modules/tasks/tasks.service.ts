@@ -1,4 +1,3 @@
-/* eslint-disable require-await */
 import { FilterQuery, ObjectId } from 'mongoose';
 import {
   ANSWER_TO_TASK_ALREADY_EXISTS_MESSAGE,
@@ -23,23 +22,26 @@ import {
   UpdateTaskParams,
   GetTasksQuery,
   GetStatisticsQuery,
-  Statistics,
+  AnswerStatisticsByLanguage,
 } from './types';
 import { getAnswerStatus } from './utils';
 
 export class TasksService {
   static findAndCountAll = async (userId: ObjectId, query: GetTasksQuery): Promise<{ count: number; tasks: ITask[] }> => {
-    const tasksAndTheirNumber = await TasksRepository.findAndCountAll(userId, query);
-    return tasksAndTheirNumber;
+    const tasksAndTheirCount = await TasksRepository.findAndCountAll(userId, query);
+    return tasksAndTheirCount;
   };
 
-  static findOneByCondition = async (condition: FilterQuery<ITask>): Promise<ITask | null> => {
-    const task = await TasksRepository.findOneByCondition(condition);
+  static findOne = async (condition: FilterQuery<ITask>): Promise<ITask | null> => {
+    const task = await TasksRepository.findOne(condition);
     return task;
   };
 
-  static calculateStatistics = async (userId: ObjectId, query: GetStatisticsQuery): Promise<{ statistics: Statistics[] }> => {
-    const statistics = await TasksRepository.calculateStatistics(userId, query);
+  static calculateAnswerStatisticsByLanguage = async (
+    userId: ObjectId,
+    query: GetStatisticsQuery,
+  ): Promise<{ statistics: AnswerStatisticsByLanguage[] }> => {
+    const statistics = await TasksRepository.calculateAnswerStatisticsByLanguage(userId, query);
     return statistics;
   };
 
@@ -75,7 +77,7 @@ export class TasksService {
   };
 
   static update = async (userId: ObjectId, { taskId }: UpdateTaskParams, { answer }: UpdateTaskBody): Promise<TaskDTO> => {
-    const taskToUpdate = await TasksService.findOneByCondition({ _id: taskId, userId });
+    const taskToUpdate = await TasksService.findOne({ _id: taskId, userId });
     if (!taskToUpdate) {
       throw new NotFoundError(TASK_NOT_FOUND_MESSAGE);
     }

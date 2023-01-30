@@ -1,8 +1,8 @@
 import { Aggregate, FilterQuery, ObjectId, PipelineStage, ProjectionType } from 'mongoose';
-import { recreateObjectIdField } from '../cards/utils';
+import { changeTypeFromObjectIdToTypesObjectId, changeTypeOfArrayFromObjectIdToTypesObjectId } from '../../utils';
 import { Task } from './task.model';
 import { DEFAULT_ANSWER_STATISTICS } from './tasks.constants';
-import { CreateTaskData, GetStatisticsQuery, GetTasksQuery, ITask, Statistics, UpdateTaskData } from './types';
+import { AnswerStatisticsByLanguage, CreateTaskData, GetStatisticsQuery, GetTasksQuery, ITask, UpdateTaskData } from './types';
 import { createSortingCondition, isObjectEmpty } from './utils';
 
 export class TasksRepository {
@@ -10,13 +10,13 @@ export class TasksRepository {
     const { sortDirection, sortBy, limit, offset, ...conditionParameters } = query;
 
     const findCondition = TasksRepository.createConditionToFindTasks({ ...conditionParameters, userId });
-    const fieldSelectionConfiguration = TasksRepository.createDTOFieldSelectionConfiguration();
+    const fieldSelectionConfig = TasksRepository.createDTOFieldSelectionConfig();
     const sortingCondition = createSortingCondition(sortBy, sortDirection);
 
     const tasksCountPromise = TasksRepository.countAll(findCondition);
     const tasksAggregate: Aggregate<ITask[]> = Task.aggregate([
       { $match: findCondition },
-      { $project: fieldSelectionConfiguration as { [field: string]: any } },
+      { $project: fieldSelectionConfig as { [field: string]: any } },
       { $sort: sortingCondition },
       { $skip: offset },
       { $limit: limit },
@@ -37,7 +37,7 @@ export class TasksRepository {
     const taskStatusCondition = taskStatus ? { status: taskStatus } : {};
 
     const condition: FilterQuery<ITask> = {
-      userId: recreateObjectIdField(userId),
+      userId: changeTypeFromObjectIdToTypesObjectId(userId),
       ...taskStatusCondition,
       ...searchByHiddenWordCondition,
       ...languagesCondition,
@@ -58,14 +58,14 @@ export class TasksRepository {
       return {};
     }
 
-    const recreatedLanguageId = recreateObjectIdField(languageId);
+    const recreatedLanguageId = changeTypeFromObjectIdToTypesObjectId(languageId);
     const languagesCondition = { $or: [{ nativeLanguageId: recreatedLanguageId }, { foreignLanguageId: recreatedLanguageId }] };
 
     return languagesCondition;
   };
 
-  private static createDTOFieldSelectionConfiguration = (): ProjectionType<ITask> => {
-    const fieldSelectionConfiguration: ProjectionType<ITask> = {
+  private static createDTOFieldSelectionConfig = (): ProjectionType<ITask> => {
+    const fieldSelectionConfig: ProjectionType<ITask> = {
       _id: 0,
       id: '$_id',
       nativeLanguageId: 1,
@@ -78,7 +78,7 @@ export class TasksRepository {
       createdAt: 1,
     };
 
-    return fieldSelectionConfiguration;
+    return fieldSelectionConfig;
   };
 
   static countAll = async (condition: FilterQuery<ITask>): Promise<number> => {
@@ -86,15 +86,18 @@ export class TasksRepository {
     return count;
   };
 
-  static findOneByCondition = async (condition: FilterQuery<ITask>): Promise<ITask | null> => {
+  static findOne = async (condition: FilterQuery<ITask>): Promise<ITask | null> => {
     const task = await Task.findOne(condition);
     return task;
   };
 
-  static calculateStatistics = async (userId: ObjectId, query: GetStatisticsQuery): Promise<{ statistics: Statistics[] }> => {
+  static calculateAnswerStatisticsByLanguage = async (
+    userId: ObjectId,
+    query: GetStatisticsQuery,
+  ): Promise<{ statistics: AnswerStatisticsByLanguage[] }> => {
     const findCondition = TasksRepository.createFindConditionToCalculateStatistics({ ...query, userId });
 
-    const statistics: Statistics[] = await Task.aggregate([
+    const statistics: AnswerStatisticsByLanguage[] = await Task.aggregate([
       { $match: findCondition },
       { $group: TasksRepository.countAnswersNumberForGroupStage() },
       { $group: TasksRepository.formAnswerStatisticsForGroupStage() },
@@ -123,7 +126,7 @@ export class TasksRepository {
     const createdAtCondition = TasksRepository.createCreatedAtCondition(fromDate, toDate);
 
     const condition: FilterQuery<ITask> = {
-      userId: recreateObjectIdField(userId),
+      userId: changeTypeFromObjectIdToTypesObjectId(userId),
       ...hiddenWordLanguageIdCondition,
       ...createdAtCondition,
     };
@@ -136,11 +139,9 @@ export class TasksRepository {
       return {};
     }
 
-    const recreatedLanguageIds = languageIds.map((languageId) => {
-      return recreateObjectIdField(languageId);
-    });
+    const updatedLanguageIds = changeTypeOfArrayFromObjectIdToTypesObjectId(languageIds);
 
-    const hiddenWordLanguageIdInIdsCondition = { hiddenWordLanguageId: { $in: recreatedLanguageIds } };
+    const hiddenWordLanguageIdInIdsCondition = { hiddenWordLanguageId: { $in: updatedLanguageIds } };
 
     return hiddenWordLanguageIdInIdsCondition;
   };
@@ -248,8 +249,8 @@ export class TasksRepository {
   static update = async (_id: ObjectId, taskData: UpdateTaskData): Promise<ITask> => {
     await Task.updateOne({ _id }, taskData);
 
-    const updatedTask1 = (await TasksRepository.findOneByCondition({ _id })) as ITask;
+    const updatedTask = (await TasksRepository.findOne({ _id })) as ITask;
 
-    return updatedTask1;
+    return updatedTask;
   };
 }

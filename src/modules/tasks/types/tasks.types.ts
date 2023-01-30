@@ -40,4 +40,4 @@ export type CreatedTaskDTO = Pick<TaskDTO, 'id' | 'nativeLanguageId' | 'foreignL
 export type UpdateTaskData = Pick<ITask, 'correctAnswers' | 'status' | 'receivedAnswer'>;
 export type FindAnswersTaskData = Pick<ITask, 'hiddenWord' | 'userId' | 'type' | 'nativeLanguageId' | 'foreignLanguageId'>;
 export type AnswerStatistics = { count: number; status: TASK_STATUS };
-export type Statistics = { language: LanguageDTO; answers: AnswerStatistics[] };
+export type AnswerStatisticsByLanguage = { language: LanguageDTO; answers: AnswerStatistics[] };
