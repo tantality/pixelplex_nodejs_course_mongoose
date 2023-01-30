@@ -1,6 +1,6 @@
 import { Aggregate, FilterQuery, ObjectId, PipelineStage, ProjectionType } from 'mongoose';
-import { Task } from '../../models/task.model';
 import { recreateObjectIdField } from '../cards/utils';
+import { Task } from './task.model';
 import { DEFAULT_ANSWER_STATISTICS } from './tasks.constants';
 import { CreateTaskData, GetStatisticsQuery, GetTasksQuery, ITask, Statistics, UpdateTaskData } from './types';
 import { createSortingCondition, isObjectEmpty } from './utils';
