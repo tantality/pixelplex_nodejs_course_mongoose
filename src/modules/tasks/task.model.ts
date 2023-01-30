@@ -5,7 +5,7 @@ const taskSchema = new Schema<ITask>(
   {
     userId: { ref: 'user', type: Types.ObjectId, index: true, required: true },
     hiddenWord: { type: String, index: true, required: true },
-    hiddenWordLanguageId: { ref: 'language', type: Types.ObjectId, required: true },
+    hiddenWordLanguageId: { ref: 'language', type: Types.ObjectId, index: true, required: true },
     nativeLanguageId: { ref: 'language', type: Types.ObjectId, required: true },
     foreignLanguageId: { ref: 'language', type: Types.ObjectId, required: true },
     type: { type: String, enum: Object.values(TASK_TYPE), required: true },
