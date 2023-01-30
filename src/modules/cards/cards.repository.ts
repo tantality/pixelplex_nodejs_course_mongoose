@@ -1,16 +1,9 @@
 import { FilterQuery, ObjectId, ProjectionType, QueryOptions } from 'mongoose';
 import { Card } from '../../models/card.model';
+import { changeTypeOfObjectFieldsFromObjectIdToTypesObjectId, changeTypeFromObjectIdToTypesObjectId } from '../../utils';
 import { FindAnswersTaskData, TASK_TYPE } from '../tasks/types';
 import { CARD_WORD_ARRAY, CreateCardBody, GetCardsQuery, ICard, UpdateCardBody } from './types';
-import {
-  getRandomInt,
-  getRandomWord,
-  getSortingCondition,
-  transformCards,
-  getCorrectAnswers,
-  recreateObjectWithObjectIdFields,
-  recreateObjectIdField,
-} from './utils';
+import { getRandomInt, getRandomWord, getSortingCondition, transformCards, getCorrectAnswers } from './utils';
 
 export class CardsRepository {
   static findAndCountAll = async (
@@ -81,7 +74,7 @@ export class CardsRepository {
       foreignLanguageId: cardForeignLanguageId,
     };
 
-    const findCondition: FilterQuery<ICard> = recreateObjectWithObjectIdFields(condition);
+    const findCondition: FilterQuery<ICard> = changeTypeOfObjectFieldsFromObjectIdToTypesObjectId(condition);
 
     const cardCount = await CardsRepository.countAll(findCondition);
     if (!cardCount) {
@@ -151,7 +144,7 @@ export class CardsRepository {
     const arrayNameToFindHiddenWordIn = CardsRepository.getArrayNameToFindHiddenWordIn(type as TASK_TYPE);
 
     const condition: FilterQuery<ICard> = {
-      userId: recreateObjectIdField(userId),
+      userId: changeTypeFromObjectIdToTypesObjectId(userId),
       nativeLanguageId,
       foreignLanguageId,
       [arrayNameToFindHiddenWordIn]: hiddenWord,
