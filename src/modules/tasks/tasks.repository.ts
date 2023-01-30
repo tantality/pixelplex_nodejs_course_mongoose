@@ -1,6 +1,7 @@
-import { Aggregate, FilterQuery, ObjectId, ProjectionType } from 'mongoose';
+import { Aggregate, FilterQuery, ObjectId, PipelineStage, ProjectionType } from 'mongoose';
 import { Task } from '../../models/task.model';
 import { recreateObjectIdField } from '../cards/utils';
+import { DEFAULT_ANSWER_STATISTICS } from './tasks.constants';
 import { CreateTaskData, GetStatisticsQuery, GetTasksQuery, ITask, Statistics, UpdateTaskData } from './types';
 import { createSortingCondition, isObjectEmpty } from './utils';
 
@@ -93,9 +94,24 @@ export class TasksRepository {
   static calculateStatistics = async (userId: ObjectId, query: GetStatisticsQuery): Promise<{ statistics: Statistics[] }> => {
     const findCondition = TasksRepository.createFindConditionToCalculateStatistics({ ...query, userId });
 
-    const taskStatistics: ITask[] = await Task.aggregate([{ $match: findCondition }]);
+    const statistics: Statistics[] = await Task.aggregate([
+      { $match: findCondition },
+      { $group: TasksRepository.countAnswersNumberForGroupStage() },
+      { $group: TasksRepository.formAnswerStatisticsForGroupStage() },
+      { $set: { defaultAnswerStatistics: DEFAULT_ANSWER_STATISTICS } },
+      { $lookup: TasksRepository.getLanguageByHiddenWordLanguageIdInArrayForLookUpStage() },
+      { $set: { language: { $first: '$language' } } },
+      { $set: { missedStatuses: { $setDifference: ['$defaultAnswerStatistics.status', '$answerStatistics.status'] } } },
+      { $project: TasksRepository.filterMissedDefaultAnswersStatisticsForProjectStage() },
+      {
+        $project: {
+          answers: { $concatArrays: ['$missedDefaultAnswerStatistics', '$answerStatistics'] },
+          language: 1,
+        },
+      },
+    ]);
 
-    return { statistics: [] };
+    return { statistics };
   };
 
   private static createFindConditionToCalculateStatistics = (
@@ -163,8 +179,65 @@ export class TasksRepository {
   };
 
   private static areDateConditionsEmpty = (fromDate: FilterQuery<ITask>, toDate: FilterQuery<ITask>): boolean => {
-    const conditionsAreEmpty = isObjectEmpty(fromDate) && isObjectEmpty(toDate);
-    return conditionsAreEmpty;
+    return isObjectEmpty(fromDate) && isObjectEmpty(toDate);
+  };
+
+  private static countAnswersNumberForGroupStage = (): PipelineStage.Group['$group'] => {
+    const groupConfig: PipelineStage.Group['$group'] = {
+      _id: {
+        hiddenWordLanguageId: '$hiddenWordLanguageId',
+        status: '$status',
+      },
+      count: { $sum: 1 },
+    };
+
+    return groupConfig;
+  };
+
+  private static formAnswerStatisticsForGroupStage = (): PipelineStage.Group['$group'] => {
+    const groupConfig: PipelineStage.Group['$group'] = {
+      _id: '$_id.hiddenWordLanguageId',
+      answerStatistics: {
+        $push: {
+          count: '$count',
+          status: '$_id.status',
+        },
+      },
+      hiddenWordLanguageId: { $first: '$_id.hiddenWordLanguageId' },
+    };
+
+    return groupConfig;
+  };
+
+  private static getLanguageByHiddenWordLanguageIdInArrayForLookUpStage = (): PipelineStage.Lookup['$lookup'] => {
+    const lookUpConfig: PipelineStage.Lookup['$lookup'] = {
+      from: 'languages',
+      let: { hiddenWordLanguageId: '$hiddenWordLanguageId' },
+      pipeline: [
+        { $match: { $expr: { $eq: ['$_id', '$$hiddenWordLanguageId'] } } },
+        { $project: { _id: 0, id: '$_id', code: 1, name: 1, createdAt: 1 } },
+      ],
+      as: 'language',
+    };
+
+    return lookUpConfig;
+  };
+
+  private static filterMissedDefaultAnswersStatisticsForProjectStage = (): PipelineStage.Project['$project'] => {
+    const projectConfig: PipelineStage.Project['$project'] = {
+      _id: 0,
+      language: 1,
+      answerStatistics: 1,
+      missedDefaultAnswerStatistics: {
+        $filter: {
+          input: '$defaultAnswerStatistics',
+          as: 'statistics',
+          cond: { $in: ['$$statistics.status', '$missedStatuses'] },
+        },
+      },
+    };
+
+    return projectConfig;
   };
 
   static create = async (taskData: CreateTaskData): Promise<ITask> => {

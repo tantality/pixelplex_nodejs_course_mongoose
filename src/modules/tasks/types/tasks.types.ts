@@ -39,5 +39,5 @@ ITask,
 export type CreatedTaskDTO = Pick<TaskDTO, 'id' | 'nativeLanguageId' | 'foreignLanguageId' | 'type'> & { word: string };
 export type UpdateTaskData = Pick<ITask, 'correctAnswers' | 'status' | 'receivedAnswer'>;
 export type FindAnswersTaskData = Pick<ITask, 'hiddenWord' | 'userId' | 'type' | 'nativeLanguageId' | 'foreignLanguageId'>;
-export type Answers = Record<TASK_STATUS, number>;
-export type Statistics = { language: LanguageDTO; answers: Answers };
+export type AnswerStatistics = { count: number; status: TASK_STATUS };
+export type Statistics = { language: LanguageDTO; answers: AnswerStatistics[] };
