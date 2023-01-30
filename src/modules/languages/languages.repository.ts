@@ -1,5 +1,5 @@
 import { Aggregate, FilterQuery, ObjectId, ProjectionType } from 'mongoose';
-import { Language } from '../../models/language.model';
+import { Language } from './language.model';
 import { CreateLanguageBody, GetLanguagesQuery, ILanguage, UpdateLanguageBody } from './types';
 import { getSortingCondition } from './utils';
 
