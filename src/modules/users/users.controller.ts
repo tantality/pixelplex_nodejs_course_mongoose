@@ -12,7 +12,7 @@ export class UsersController {
         throw new NotFoundError(USER_NOT_FOUND_MESSAGE);
       }
 
-      const user = await UsersService.findOneByCondition({ _id: userId });
+      const user = await UsersService.findOne({ _id: userId });
       if (!user) {
         throw new NotFoundError(USER_NOT_FOUND_MESSAGE);
       }

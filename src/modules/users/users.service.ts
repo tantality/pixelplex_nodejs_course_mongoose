@@ -11,18 +11,13 @@ import { CreateUserData, IUser, UpdateUserBody } from './types';
 import { UsersRepository } from './users.repository';
 
 export class UsersService {
-  static findOneByCondition = async (condition: FilterQuery<IUser>): Promise<IUser | null> => {
-    const user = await UsersRepository.findOneByCondition(condition);
-    return user;
-  };
-
   static create = async (userData: CreateUserData): Promise<IUser> => {
     const nativeLanguage = await LanguagesService.findOne({ _id: userData.nativeLanguageId });
     if (!nativeLanguage) {
       throw new NotFoundError(LANGUAGE_NOT_FOUND_MESSAGE);
     }
 
-    const user = await UsersService.findOneByCondition({ normalizedEmail: userData.normalizedEmail });
+    const user = await UsersService.findOne({ normalizedEmail: userData.normalizedEmail });
     if (user) {
       throw new BadRequestError(USER_ALREADY_EXISTS_MESSAGE);
     }
@@ -33,7 +28,7 @@ export class UsersService {
   };
 
   static update = async (userId: ObjectId, body: UpdateUserBody): Promise<IUser> => {
-    const userToUpdate = await UsersService.findOneByCondition({ _id: userId });
+    const userToUpdate = await UsersService.findOne({ _id: userId });
     if (!userToUpdate) {
       throw new NotFoundError(USER_NOT_FOUND_MESSAGE);
     }
@@ -46,5 +41,10 @@ export class UsersService {
     const updatedUser = await UsersRepository.update(userId, body);
 
     return updatedUser;
+  };
+
+  static findOne = async (condition: FilterQuery<IUser>): Promise<IUser | null> => {
+    const user = await UsersRepository.findOne(condition);
+    return user;
   };
 }
