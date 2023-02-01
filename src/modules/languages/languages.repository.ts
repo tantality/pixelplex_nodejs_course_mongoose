@@ -1,55 +1,75 @@
 import { Aggregate, FilterQuery, ObjectId, ProjectionType } from 'mongoose';
-import { Language } from '../../models/language.model';
-import { CreateLanguageBody, GetLanguagesQuery, ILanguage, UpdateLanguageBody } from './types';
-import { getSortingCondition } from './utils';
+import { SortingConditionWithDirectionAsNumber, SORT_DIRECTION } from '../../types';
+import { getSortDirectionAsNumber } from '../../utils';
+import { Language } from './language.model';
+import { CreateLanguageBody, GetLanguagesQuery, ILanguage, LANGUAGE_SORT_BY, UpdateLanguageBody } from './types';
 
 export class LanguagesRepository {
-  static findAndCountAll = async ({
-    search,
-    sortBy,
-    sortDirection,
-    limit,
-    offset,
-  }: GetLanguagesQuery): Promise<{ count: number; languages: ILanguage[] }> => {
-    const filter = LanguagesRepository.getFilterToFindLanguages(search);
-    const projectionFields: ProjectionType<ILanguage> = { _id: 0, id: '$_id', code: 1, name: 1, createdAt: 1, nameInLowercase: 1 };
+  static DTO_FIELD_SELECTION_CONFIG: ProjectionType<ILanguage> = { _id: 0, id: '$_id', code: 1, name: 1, createdAt: 1 };
 
-    const languagesNumberPromise = LanguagesRepository.countAll(filter);
+  static findAndCountAll = async (query: GetLanguagesQuery): Promise<{ count: number; languages: ILanguage[] }> => {
+    const { search, sortBy, sortDirection, limit, offset } = query;
+
+    const findingCondition = LanguagesRepository.createFindingConditionForLanguages(search);
+    const sortingCondition = LanguagesRepository.createSortingConditionForLanguages(sortBy, sortDirection);
+
+    const languagesCountPromise = LanguagesRepository.countAll(findingCondition);
     const languagesAggregate: Aggregate<ILanguage[]> = Language.aggregate([
-      { $match: filter },
+      { $match: findingCondition },
       { $addFields: { nameInLowercase: { $toLower: '$name' } } },
-      { $project: projectionFields },
-      { $sort: getSortingCondition(sortBy, sortDirection) },
+      { $project: { ...(LanguagesRepository.DTO_FIELD_SELECTION_CONFIG as Record<string, unknown>), nameInLowercase: 1 } },
+      { $sort: sortingCondition },
       { $unset: ['nameInLowercase'] },
       { $skip: offset },
       { $limit: limit },
     ]);
 
-    const [count, languages] = await Promise.all([languagesNumberPromise, languagesAggregate]);
+    const [count, languages] = await Promise.all([languagesCountPromise, languagesAggregate]);
 
     return { count, languages };
   };
 
-  private static getFilterToFindLanguages = (search?: string): FilterQuery<ILanguage> => {
-    let filter: FilterQuery<ILanguage> = {};
+  private static createFindingConditionForLanguages = (search?: string): FilterQuery<ILanguage> => {
+    const searchByNameCondition = LanguagesRepository.createSearchByNameCondition(search);
 
-    if (search) {
-      filter = {
-        name: { $regex: new RegExp(search, 'i') },
-      };
+    const condition: FilterQuery<ILanguage> = {
+      ...searchByNameCondition,
+    };
+
+    return condition;
+  };
+
+  private static createSearchByNameCondition = (search?: string): FilterQuery<ILanguage> => {
+    const searchCondition = search ? { $regex: new RegExp(search, 'i') } : null;
+    const searchByNameCondition = searchCondition ? { name: searchCondition } : {};
+
+    return searchByNameCondition;
+  };
+
+  private static createSortingConditionForLanguages = (
+    sortBy: string,
+    sortDirection: string,
+  ): SortingConditionWithDirectionAsNumber<ILanguage> => {
+    let sortingCondition: SortingConditionWithDirectionAsNumber<ILanguage> = {};
+    const sortDirectionAsNumber = getSortDirectionAsNumber(sortDirection as SORT_DIRECTION);
+
+    switch (sortBy) {
+    case LANGUAGE_SORT_BY.NAME: {
+      sortingCondition = { nameInLowercase: sortDirectionAsNumber };
+      break;
+    }
+    case LANGUAGE_SORT_BY.DATE: {
+      sortingCondition = { createdAt: sortDirectionAsNumber };
+      break;
+    }
     }
 
-    return filter;
+    return sortingCondition;
   };
 
   static countAll = async (condition: FilterQuery<ILanguage>): Promise<number> => {
     const count = await Language.where(condition).countDocuments();
     return count;
-  };
-
-  static findOneByCondition = async (whereCondition: FilterQuery<ILanguage>): Promise<ILanguage | null> => {
-    const language = await Language.findOne(whereCondition);
-    return language;
   };
 
   static create = async (body: CreateLanguageBody): Promise<ILanguage> => {
@@ -60,9 +80,14 @@ export class LanguagesRepository {
   static update = async (_id: ObjectId, body: UpdateLanguageBody): Promise<ILanguage> => {
     await Language.updateOne({ _id }, { ...body });
 
-    const updatedLanguage = (await LanguagesRepository.findOneByCondition({ _id })) as ILanguage;
+    const updatedLanguage = (await LanguagesRepository.findOne({ _id })) as ILanguage;
 
     return updatedLanguage;
+  };
+
+  static findOne = async (condition: FilterQuery<ILanguage>): Promise<ILanguage | null> => {
+    const language = await Language.findOne(condition);
+    return language;
   };
 
   static delete = async (_id: ObjectId): Promise<void> => {
