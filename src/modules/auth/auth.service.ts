@@ -17,7 +17,7 @@ import { SALT_ROUNDS } from './auth.constants';
 export class AuthService {
   static signUp = async (body: SignUpBody): Promise<IAuth> => {
     const normalizedEmail = normalizeEmail(body.email);
-    const user = await UsersService.findOneByCondition({ normalizedEmail });
+    const user = await UsersService.findOne({ normalizedEmail });
     if (user) {
       throw new BadRequestError(USER_ALREADY_EXISTS_MESSAGE);
     }
@@ -37,7 +37,7 @@ export class AuthService {
 
   static logIn = async ({ email, password }: LogInBody): Promise<IAuth> => {
     const normalizedEmail = normalizeEmail(email);
-    const user = await UsersService.findOneByCondition({ normalizedEmail });
+    const user = await UsersService.findOne({ normalizedEmail });
     if (!user) {
       throw new NotFoundError(USER_NOT_FOUND_MESSAGE);
     }
