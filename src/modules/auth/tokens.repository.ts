@@ -1,5 +1,5 @@
 import { FilterQuery, ObjectId } from 'mongoose';
-import { Token } from '../../models/token.model';
+import { Token } from './token.model';
 import { IToken, RefreshTokenWithUserId } from './types';
 
 export class TokensRepository {
