@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { ILanguage } from '../modules/languages/types';
+import { ILanguage } from './types';
 
 const languageSchema = new mongoose.Schema<ILanguage>(
   {

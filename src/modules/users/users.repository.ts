@@ -1,5 +1,5 @@
 import { FilterQuery, ObjectId } from 'mongoose';
-import { User } from '../../models/user.model';
+import { User } from './user.model';
 import { CreateUserData, IUser, UpdateUserBody } from './types';
 
 export class UsersRepository {

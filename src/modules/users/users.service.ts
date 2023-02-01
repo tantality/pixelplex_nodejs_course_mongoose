@@ -1,4 +1,3 @@
-/* eslint-disable require-await */
 import { FilterQuery, ObjectId } from 'mongoose';
 import {
   NotFoundError,
@@ -18,7 +17,7 @@ export class UsersService {
   };
 
   static create = async (userData: CreateUserData): Promise<IUser> => {
-    const nativeLanguage = await LanguagesService.findOneByCondition({ _id: userData.nativeLanguageId });
+    const nativeLanguage = await LanguagesService.findOne({ _id: userData.nativeLanguageId });
     if (!nativeLanguage) {
       throw new NotFoundError(LANGUAGE_NOT_FOUND_MESSAGE);
     }
@@ -39,7 +38,7 @@ export class UsersService {
       throw new NotFoundError(USER_NOT_FOUND_MESSAGE);
     }
 
-    const nativeLanguage = await LanguagesService.findOneByCondition({ _id: body.nativeLanguageId });
+    const nativeLanguage = await LanguagesService.findOne({ _id: body.nativeLanguageId });
     if (!nativeLanguage) {
       throw new NotFoundError(LANGUAGE_NOT_FOUND_MESSAGE);
     }
