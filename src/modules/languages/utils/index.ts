@@ -1,1 +1,1 @@
-export * from './get-sorting-condition.utils';
+export * from './create-sorting-condition.utils';

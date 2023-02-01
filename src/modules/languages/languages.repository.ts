@@ -1,7 +1,7 @@
 import { Aggregate, FilterQuery, ObjectId, ProjectionType } from 'mongoose';
 import { Language } from './language.model';
 import { CreateLanguageBody, GetLanguagesQuery, ILanguage, UpdateLanguageBody } from './types';
-import { getSortingCondition } from './utils';
+import { createSortingCondition } from './utils';
 
 export class LanguagesRepository {
   static DTO_FIELD_SELECTION_CONFIG: ProjectionType<ILanguage> = { _id: 0, id: '$_id', code: 1, name: 1, createdAt: 1 };
@@ -16,7 +16,7 @@ export class LanguagesRepository {
       { $match: findCondition },
       { $addFields: { nameInLowercase: { $toLower: '$name' } } },
       { $project: { ...(LanguagesRepository.DTO_FIELD_SELECTION_CONFIG as Record<string, unknown>), nameInLowercase: 1 } },
-      { $sort: getSortingCondition(sortBy, sortDirection) },
+      { $sort: createSortingCondition(sortBy, sortDirection) },
       { $unset: ['nameInLowercase'] },
       { $skip: offset },
       { $limit: limit },
