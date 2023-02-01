@@ -10,11 +10,6 @@ export class LanguagesService {
     return languagesAndTheirCount;
   };
 
-  static findOne = async (condition: FilterQuery<ILanguage>): Promise<ILanguage | null> => {
-    const language = await LanguagesRepository.findOne(condition);
-    return language;
-  };
-
   static create = async (body: CreateLanguageBody): Promise<LanguageDTO> => {
     const language = await LanguagesService.findOne({ code: body.code });
     if (language) {
@@ -50,5 +45,10 @@ export class LanguagesService {
     }
 
     await LanguagesRepository.delete(languageId);
+  };
+
+  static findOne = async (condition: FilterQuery<ILanguage>): Promise<ILanguage | null> => {
+    const language = await LanguagesRepository.findOne(condition);
+    return language;
   };
 }
