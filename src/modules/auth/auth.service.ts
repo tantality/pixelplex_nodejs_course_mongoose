@@ -68,7 +68,7 @@ export class AuthService {
       throw new UnauthorizedError(REFRESH_TOKEN_IS_MISSING_MESSAGE);
     }
 
-    const token = await TokensService.findOneByCondition({ refreshToken: refreshTokenReceived });
+    const token = await TokensService.findOneByCondition(refreshTokenReceived);
     if (!token) {
       throw new NotFoundError(REFRESH_TOKEN_NOT_FOUND_MESSAGE);
     }

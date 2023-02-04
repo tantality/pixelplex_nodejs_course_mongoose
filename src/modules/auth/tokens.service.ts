@@ -1,6 +1,6 @@
 /* eslint-disable import/no-named-as-default-member */
 import jwt from 'jsonwebtoken';
-import { FilterQuery, ObjectId } from 'mongoose';
+import { ObjectId } from 'mongoose';
 import { ACCESS_TOKEN_LIFETIME_IN_MS, REFRESH_TOKEN_LIFETIME_IN_MS } from './auth.constants';
 import { TokensRepository } from './tokens.repository';
 import { IAuth, IToken, JWTPayload, RefreshTokenWithUserId, VerifiedJWTPayload } from './types';
@@ -17,12 +17,12 @@ export class TokensService {
     return jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET as string) as VerifiedJWTPayload;
   };
 
-  static validateRefreshToken = (accessToken: string): VerifiedJWTPayload => {
-    return jwt.verify(accessToken, process.env.JWT_REFRESH_SECRET as string) as VerifiedJWTPayload;
+  static validateRefreshToken = (refreshToken: string): VerifiedJWTPayload => {
+    return jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET as string) as VerifiedJWTPayload;
   };
 
-  static findOneByCondition = async (condition: FilterQuery<IToken>): Promise<IToken | null> => {
-    const token = await TokensRepository.findOneByCondition(condition);
+  static findOneByCondition = async (refreshToken: string): Promise<IToken | null> => {
+    const token = await TokensRepository.findOneByCondition(refreshToken);
     return token;
   };
 
