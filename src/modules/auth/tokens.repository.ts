@@ -1,13 +1,13 @@
 import { ObjectId } from 'mongoose';
 import { User } from '../users/user.model';
 import { REFRESH_TOKEN_LIFETIME_IN_MS } from './auth.constants';
-import { IToken, RefreshTokenWithUserId } from './types';
+import { IToken } from './types';
 import { getTokenFromArray } from './utils';
 
 export class TokensRepository {
-  static findOneByCondition = async (refreshTokenReceived: string): Promise<IToken | null> => {
+  static findOne = async (refreshTokenValue: string): Promise<IToken | null> => {
     const tokenInArray: { token: IToken }[] = await User.aggregate([
-      { $match: { refreshTokens: { $elemMatch: { value: refreshTokenReceived } } } },
+      { $match: { refreshTokens: { $elemMatch: { value: refreshTokenValue } } } },
       {
         $project: {
           _id: 0,
@@ -15,7 +15,7 @@ export class TokensRepository {
             $filter: {
               input: '$refreshTokens',
               as: 'refreshToken',
-              cond: { $eq: ['$$refreshToken.value', refreshTokenReceived] },
+              cond: { $eq: ['$$refreshToken.value', refreshTokenValue] },
             },
           },
         },
@@ -26,19 +26,16 @@ export class TokensRepository {
     return getTokenFromArray(tokenInArray);
   };
 
-  static save = async (tokenData: RefreshTokenWithUserId): Promise<void> => {
-    const { userId, refreshToken } = tokenData;
-    await User.updateOne({ _id: userId }, { $push: { refreshTokens: { value: refreshToken } } });
+  static save = async (userId: ObjectId, refreshTokenValue: string): Promise<void> => {
+    await User.updateOne({ _id: userId }, { $push: { refreshTokens: { value: refreshTokenValue } } });
   };
 
-  static update = async (_id: ObjectId, tokenData: RefreshTokenWithUserId): Promise<void> => {
-    const { userId, refreshToken } = tokenData;
-
+  static update = async (_id: ObjectId, refreshTokenValue: string): Promise<void> => {
     await User.updateOne(
-      { _id: userId },
+      { refreshTokens: { $exists: true } },
       {
         $set: {
-          'refreshTokens.$[token].value': refreshToken,
+          'refreshTokens.$[token].value': refreshTokenValue,
           'refreshTokens.$[token].expiresAt': Date.now() + REFRESH_TOKEN_LIFETIME_IN_MS,
         },
       },
@@ -46,8 +43,7 @@ export class TokensRepository {
     );
   };
 
-  static delete = async (tokenData: RefreshTokenWithUserId): Promise<void> => {
-    const { userId, refreshToken } = tokenData;
-    await User.updateOne({ _id: userId }, { $pull: { refreshTokens: { value: refreshToken } } });
+  static delete = async (userId: ObjectId, refreshTokenValue: string): Promise<void> => {
+    await User.updateOne({ _id: userId }, { $pull: { refreshTokens: { value: refreshTokenValue } } });
   };
 }

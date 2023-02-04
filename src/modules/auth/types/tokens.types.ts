@@ -7,7 +7,5 @@ export interface IToken {
   expiresAt: Date;
 }
 
-export type RefreshTokenWithUserId = { userId: ObjectId; refreshToken: string };
-
 export type JWTPayload = { userId: ObjectId; role: string };
 export type VerifiedJWTPayload = jwt.JwtPayload & JWTPayload;

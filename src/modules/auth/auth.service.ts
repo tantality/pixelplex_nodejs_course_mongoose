@@ -1,5 +1,6 @@
 import normalizeEmail from 'normalize-email';
 import * as bcrypt from 'bcrypt';
+import { ObjectId } from 'mongoose';
 import { BadRequestError, NotFoundError, UnauthorizedError } from '../../errors';
 import {
   INVALID_PASSWORD_MESSAGE,
@@ -10,7 +11,7 @@ import {
   USER_NOT_FOUND_MESSAGE,
 } from '../../errors/error-messages.constants';
 import { UsersService } from '../users/users.service';
-import { IAuth, LogInBody, RefreshTokenWithUserId, SignUpBody } from './types';
+import { IAuth, LogInBody, SignUpBody } from './types';
 import { TokensService } from './tokens.service';
 import { SALT_ROUNDS } from './auth.constants';
 
@@ -23,13 +24,13 @@ export class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(body.password, SALT_ROUNDS);
-    const { _id, role } = await UsersService.create({ ...body, normalizedEmail, password: hashedPassword });
-    const { accessToken, refreshToken } = TokensService.generateTokens({ userId: _id, role });
+    const { _id: userId, role } = await UsersService.create({ ...body, normalizedEmail, password: hashedPassword });
+    const { accessToken, refreshToken } = TokensService.generateTokens({ userId, role });
 
-    await TokensService.save({ userId: _id, refreshToken });
+    await TokensService.save(userId, refreshToken);
 
     return {
-      id: _id,
+      id: userId,
       accessToken,
       refreshToken,
     };
@@ -47,33 +48,33 @@ export class AuthService {
       throw new UnauthorizedError(INVALID_PASSWORD_MESSAGE);
     }
 
-    const { _id, role } = user;
-    const { accessToken, refreshToken } = TokensService.generateTokens({ userId: _id, role });
+    const { _id: userId, role } = user;
+    const { accessToken, refreshToken } = TokensService.generateTokens({ userId, role });
 
-    await TokensService.save({ userId: _id, refreshToken });
+    await TokensService.save(userId, refreshToken);
 
     return {
-      id: _id,
+      id: userId,
       accessToken,
       refreshToken,
     };
   };
 
-  static logOut = async (tokenData: RefreshTokenWithUserId): Promise<void> => {
-    await TokensService.delete(tokenData);
+  static logOut = async (userId: ObjectId, refreshTokenToDelete: string): Promise<void> => {
+    await TokensService.delete(userId, refreshTokenToDelete);
   };
 
-  static refresh = async (refreshTokenReceived?: string): Promise<IAuth> => {
-    if (!refreshTokenReceived) {
+  static refresh = async (receivedRefreshToken?: string): Promise<IAuth> => {
+    if (!receivedRefreshToken) {
       throw new UnauthorizedError(REFRESH_TOKEN_IS_MISSING_MESSAGE);
     }
 
-    const token = await TokensService.findOneByCondition(refreshTokenReceived);
+    const token = await TokensService.findOne(receivedRefreshToken);
     if (!token) {
       throw new NotFoundError(REFRESH_TOKEN_NOT_FOUND_MESSAGE);
     }
 
-    const verifiedRefreshToken = TokensService.validateRefreshToken(refreshTokenReceived);
+    const verifiedRefreshToken = TokensService.validateRefreshToken(receivedRefreshToken);
     if (!verifiedRefreshToken) {
       throw new UnauthorizedError(REFRESH_TOKEN_IS_INVALID_MESSAGE);
     }
@@ -81,7 +82,7 @@ export class AuthService {
     const { userId, role } = verifiedRefreshToken;
     const { accessToken, refreshToken } = TokensService.generateTokens({ userId, role });
 
-    await TokensService.update(token._id, { userId, refreshToken });
+    await TokensService.update(token._id, refreshToken);
 
     return {
       id: userId,
