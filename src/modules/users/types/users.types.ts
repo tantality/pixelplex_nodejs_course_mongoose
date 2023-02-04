@@ -1,4 +1,5 @@
 import { ObjectId } from 'mongoose';
+import { IToken } from '../../auth/types';
 
 export interface IUser {
   _id: ObjectId;
@@ -8,6 +9,7 @@ export interface IUser {
   normalizedEmail: string;
   password: string;
   role: string;
+  refreshTokens: IToken[];
   createdAt: Date;
   updatedAt: Date;
 }
