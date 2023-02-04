@@ -5,7 +5,7 @@ import { IUser, USER_ROLE } from './types';
 
 const tokenSchema = new Schema<IToken>({
   value: { type: String, index: true },
-  expiresAt: { type: Date, default: Date.now() + REFRESH_TOKEN_LIFETIME_IN_MS },
+  expiresAt: { type: Date, default: (): number => Date.now() + REFRESH_TOKEN_LIFETIME_IN_MS },
 });
 
 const userSchema = new Schema<IUser>(
