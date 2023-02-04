@@ -46,4 +46,8 @@ export class TokensRepository {
   static delete = async (userId: ObjectId, refreshTokenValue: string): Promise<void> => {
     await User.updateOne({ _id: userId }, { $pull: { refreshTokens: { value: refreshTokenValue } } });
   };
+
+  static deleteExpiredRefreshTokens = async (): Promise<void> => {
+    await User.updateMany({}, { $pull: { refreshTokens: { expiresAt: { $lt: Date.now() } } } });
+  };
 }
