@@ -10,13 +10,13 @@ export class TasksRepository {
   static findAndCountAll = async (userId: ObjectId, query: GetTasksQuery): Promise<{ count: number; tasks: ITask[] }> => {
     const { sortDirection, sortBy, limit, offset, ...conditionParameters } = query;
 
-    const findCondition = TasksRepository.createConditionToFindTasks({ ...conditionParameters, userId });
+    const findingCondition = TasksRepository.createFindingConditionForTasks({ ...conditionParameters, userId });
     const fieldSelectionConfig = TasksRepository.createDTOFieldSelectionConfig();
     const sortingCondition = TasksRepository.createSortingConditionForTasks(sortBy, sortDirection);
 
-    const tasksCountPromise = TasksRepository.countAll(findCondition);
+    const tasksCountPromise = TasksRepository.countAll(findingCondition);
     const tasksAggregate: Aggregate<ITask[]> = Task.aggregate([
-      { $match: findCondition },
+      { $match: findingCondition },
       { $project: fieldSelectionConfig as { [field: string]: any } },
       { $sort: sortingCondition },
       { $skip: offset },
@@ -28,7 +28,7 @@ export class TasksRepository {
     return { count, tasks };
   };
 
-  private static createConditionToFindTasks = (
+  private static createFindingConditionForTasks = (
     conditionParameters: Pick<GetTasksQuery, 'search' | 'taskStatus' | 'languageId'> & { userId: ObjectId },
   ): FilterQuery<ITask> => {
     const { search, taskStatus, userId, languageId } = conditionParameters;
@@ -101,19 +101,14 @@ export class TasksRepository {
     return count;
   };
 
-  static findOne = async (condition: FilterQuery<ITask>): Promise<ITask | null> => {
-    const task = await Task.findOne(condition);
-    return task;
-  };
-
   static calculateAnswerStatisticsByLanguage = async (
     userId: ObjectId,
     query: GetStatisticsQuery,
   ): Promise<{ statistics: AnswerStatisticsByLanguage[] }> => {
-    const findCondition = TasksRepository.createFindConditionToCalculateStatistics({ ...query, userId });
+    const findingCondition = TasksRepository.createFindingConditionForCalculateStatistics({ ...query, userId });
 
     const statistics: AnswerStatisticsByLanguage[] = await Task.aggregate([
-      { $match: findCondition },
+      { $match: findingCondition },
       { $group: TasksRepository.countAnswersNumberForGroupStage() },
       { $group: TasksRepository.formAnswerStatisticsForGroupStage() },
       { $set: { defaultAnswerStatistics: DEFAULT_ANSWER_STATISTICS } },
@@ -132,7 +127,7 @@ export class TasksRepository {
     return { statistics };
   };
 
-  private static createFindConditionToCalculateStatistics = (
+  private static createFindingConditionForCalculateStatistics = (
     conditionParameters: GetStatisticsQuery & { userId: ObjectId },
   ): FilterQuery<ITask> => {
     const { fromDate, toDate, languageIds, userId } = conditionParameters;
@@ -267,5 +262,10 @@ export class TasksRepository {
     const updatedTask = (await TasksRepository.findOne({ _id })) as ITask;
 
     return updatedTask;
+  };
+
+  static findOne = async (condition: FilterQuery<ITask>): Promise<ITask | null> => {
+    const task = await Task.findOne(condition);
+    return task;
   };
 }
