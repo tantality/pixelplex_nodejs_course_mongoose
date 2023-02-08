@@ -47,7 +47,7 @@ export class LanguagesService {
     }
 
     const languageIsUsedInUsersPromise = UsersService.findOne({ nativeLanguageId: languageId });
-    const languageIsUsedInCardsPromise = CardsService.findOneByCondition({
+    const languageIsUsedInCardsPromise = CardsService.findOne({
       $or: [{ nativeLanguageId: languageId }, { foreignLanguageId: languageId }],
     });
 

@@ -9,13 +9,8 @@ import { ICard, CreateCardBody, UpdateCardBody, GetCardsQuery } from './types';
 
 export class CardsService {
   static findAndCountAll = async (userId: ObjectId, query: GetCardsQuery): Promise<{ count: number; cards: ICard[] }> => {
-    const cardsAndTheirNumber = await CardsRepository.findAndCountAll(userId, query);
-    return cardsAndTheirNumber;
-  };
-
-  static findOneByCondition = async (condition: FilterQuery<ICard>): Promise<ICard | null> => {
-    const card = await CardsRepository.findOneByCondition(condition);
-    return card;
+    const cardsAndTheirCount = await CardsRepository.findAndCountAll(userId, query);
+    return cardsAndTheirCount;
   };
 
   static create = async (userId: ObjectId, body: CreateCardBody): Promise<CardDTO> => {
@@ -29,7 +24,7 @@ export class CardsService {
   };
 
   static update = async (userId: ObjectId, cardId: ObjectId, body: UpdateCardBody): Promise<CardDTO> => {
-    const cardToUpdate = await CardsService.findOneByCondition({ userId, _id: cardId });
+    const cardToUpdate = await CardsService.findOne({ userId, _id: cardId });
     if (!cardToUpdate) {
       throw new NotFoundError(CARD_NOT_FOUND_MESSAGE);
     }
@@ -44,11 +39,16 @@ export class CardsService {
   };
 
   static delete = async (userId: ObjectId, cardId: ObjectId): Promise<void> => {
-    const cardToDelete = await CardsService.findOneByCondition({ userId, _id: cardId });
+    const cardToDelete = await CardsService.findOne({ userId, _id: cardId });
     if (!cardToDelete) {
       throw new NotFoundError(CARD_NOT_FOUND_MESSAGE);
     }
 
     await CardsRepository.delete(cardId);
+  };
+
+  static findOne = async (condition: FilterQuery<ICard>): Promise<ICard | null> => {
+    const card = await CardsRepository.findOneByCondition(condition);
+    return card;
   };
 }
