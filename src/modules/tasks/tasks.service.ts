@@ -46,7 +46,7 @@ export class TasksService {
   };
 
   static create = async (userId: ObjectId, { type, foreignLanguageId }: CreateTaskBody): Promise<CreatedTaskDTO> => {
-    let { nativeLanguageId } = (await UsersService.findOneByCondition({ _id: userId })) as IUser;
+    let { nativeLanguageId } = (await UsersService.findOne({ _id: userId })) as IUser;
 
     await checkLanguagesValidity(nativeLanguageId, foreignLanguageId);
 

@@ -27,9 +27,7 @@ export class AuthController {
 
   static logOut = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { refreshToken } = req.cookies;
-
-      await AuthService.logOut({ userId: req.userId as ObjectId, refreshToken });
+      await AuthService.logOut(req.userId as ObjectId, req.cookies.refreshToken);
 
       res.clearCookie('refreshToken');
       res.status(200).json();
@@ -40,8 +38,7 @@ export class AuthController {
 
   static refreshTokens = async (req: Request, res: RefreshTokensResponse, next: NextFunction): Promise<void> => {
     try {
-      const { refreshToken } = req.cookies;
-      const authData = await AuthService.refresh(refreshToken);
+      const authData = await AuthService.refresh(req.cookies.refreshToken);
       res.cookie('refreshToken', authData.refreshToken, COOKIE_OPTIONS);
       res.status(200).json(authData);
     } catch (err) {

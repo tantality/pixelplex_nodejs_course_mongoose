@@ -8,17 +8,12 @@ import { LanguagesRepository } from './languages.repository';
 
 export class LanguagesService {
   static findAndCountAll = async (query: GetLanguagesQuery): Promise<{ count: number; languages: ILanguage[] }> => {
-    const languagesAndTheirNumber = await LanguagesRepository.findAndCountAll(query);
-    return languagesAndTheirNumber;
-  };
-
-  static findOneByCondition = async (whereCondition: FilterQuery<ILanguage>): Promise<ILanguage | null> => {
-    const language = await LanguagesRepository.findOneByCondition(whereCondition);
-    return language;
+    const languagesAndTheirCount = await LanguagesRepository.findAndCountAll(query);
+    return languagesAndTheirCount;
   };
 
   static create = async (body: CreateLanguageBody): Promise<LanguageDTO> => {
-    const language = await LanguagesService.findOneByCondition({ code: body.code });
+    const language = await LanguagesService.findOne({ code: body.code });
     if (language) {
       throw new BadRequestError(LANGUAGE_ALREADY_EXISTS_MESSAGE);
     }
@@ -29,13 +24,13 @@ export class LanguagesService {
   };
 
   static update = async (languageId: ObjectId, body: UpdateLanguageBody): Promise<LanguageDTO> => {
-    const languageToUpdate = await LanguagesService.findOneByCondition({ _id: languageId });
+    const languageToUpdate = await LanguagesService.findOne({ _id: languageId });
     if (!languageToUpdate) {
       throw new NotFoundError(LANGUAGE_NOT_FOUND_MESSAGE);
     }
 
     const { code } = body;
-    const language = code && (await LanguagesService.findOneByCondition({ code }));
+    const language = code && (await LanguagesService.findOne({ code }));
     if (language) {
       throw new BadRequestError(LANGUAGE_ALREADY_EXISTS_MESSAGE);
     }
@@ -46,12 +41,12 @@ export class LanguagesService {
   };
 
   static delete = async (languageId: ObjectId): Promise<void> => {
-    const languageToDelete = await LanguagesService.findOneByCondition({ _id: languageId });
+    const languageToDelete = await LanguagesService.findOne({ _id: languageId });
     if (!languageToDelete) {
       throw new NotFoundError(LANGUAGE_NOT_FOUND_MESSAGE);
     }
 
-    const languageIsUsedInUsersPromise = UsersService.findOneByCondition({ nativeLanguageId: languageId });
+    const languageIsUsedInUsersPromise = UsersService.findOne({ nativeLanguageId: languageId });
     const languageIsUsedInCardsPromise = CardsService.findOneByCondition({
       $or: [{ nativeLanguageId: languageId }, { foreignLanguageId: languageId }],
     });
@@ -63,5 +58,10 @@ export class LanguagesService {
     }
 
     await LanguagesRepository.delete(languageId);
+  };
+
+  static findOne = async (condition: FilterQuery<ILanguage>): Promise<ILanguage | null> => {
+    const language = await LanguagesRepository.findOne(condition);
+    return language;
   };
 }

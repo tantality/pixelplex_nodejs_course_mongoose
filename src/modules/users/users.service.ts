@@ -1,4 +1,3 @@
-/* eslint-disable require-await */
 import { FilterQuery, ObjectId } from 'mongoose';
 import { NotFoundError, LANGUAGE_NOT_FOUND_MESSAGE, BadRequestError, USER_ALREADY_EXISTS_MESSAGE } from '../../errors';
 import { LanguagesService } from '../languages/languages.service';
@@ -6,18 +5,13 @@ import { CreateUserData, IUser, UpdateUserBody } from './types';
 import { UsersRepository } from './users.repository';
 
 export class UsersService {
-  static findOneByCondition = async (condition: FilterQuery<IUser>): Promise<IUser | null> => {
-    const user = await UsersRepository.findOneByCondition(condition);
-    return user;
-  };
-
   static create = async (userData: CreateUserData): Promise<IUser> => {
-    const nativeLanguage = await LanguagesService.findOneByCondition({ _id: userData.nativeLanguageId });
+    const nativeLanguage = await LanguagesService.findOne({ _id: userData.nativeLanguageId });
     if (!nativeLanguage) {
       throw new NotFoundError(LANGUAGE_NOT_FOUND_MESSAGE);
     }
 
-    const user = await UsersService.findOneByCondition({ normalizedEmail: userData.normalizedEmail });
+    const user = await UsersService.findOne({ normalizedEmail: userData.normalizedEmail });
     if (user) {
       throw new BadRequestError(USER_ALREADY_EXISTS_MESSAGE);
     }
@@ -28,7 +22,7 @@ export class UsersService {
   };
 
   static update = async (userId: ObjectId, body: UpdateUserBody): Promise<IUser> => {
-    const nativeLanguage = await LanguagesService.findOneByCondition({ _id: body.nativeLanguageId });
+    const nativeLanguage = await LanguagesService.findOne({ _id: body.nativeLanguageId });
     if (!nativeLanguage) {
       throw new NotFoundError(LANGUAGE_NOT_FOUND_MESSAGE);
     }
@@ -36,5 +30,10 @@ export class UsersService {
     const updatedUser = await UsersRepository.update(userId, body);
 
     return updatedUser;
+  };
+
+  static findOne = async (condition: FilterQuery<IUser>): Promise<IUser | null> => {
+    const user = await UsersRepository.findOne(condition);
+    return user;
   };
 }

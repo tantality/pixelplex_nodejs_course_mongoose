@@ -35,7 +35,7 @@ export class CardsService {
   };
 
   static create = async (userId: ObjectId, body: CreateCardBody): Promise<CardDTO> => {
-    const { nativeLanguageId } = (await UsersService.findOneByCondition({ _id: userId })) as IUser;
+    const { nativeLanguageId } = (await UsersService.findOne({ _id: userId })) as IUser;
 
     await checkLanguagesValidity(nativeLanguageId, body.foreignLanguageId);
 
@@ -50,7 +50,7 @@ export class CardsService {
       throw new NotFoundError(CARD_NOT_FOUND_MESSAGE);
     }
 
-    const { nativeLanguageId } = (await UsersService.findOneByCondition({ _id: userId })) as IUser;
+    const { nativeLanguageId } = (await UsersService.findOne({ _id: userId })) as IUser;
 
     await checkLanguagesValidity(nativeLanguageId, body.foreignLanguageId);
 

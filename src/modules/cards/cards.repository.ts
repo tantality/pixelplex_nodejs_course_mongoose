@@ -1,7 +1,7 @@
 import { FilterQuery, ObjectId, ProjectionType, QueryOptions } from 'mongoose';
-import { Card } from '../../models/card.model';
 import { changeTypeOfObjectFieldsFromObjectIdToTypesObjectId, changeTypeFromObjectIdToTypesObjectId } from '../../utils';
 import { FindAnswersTaskData, TASK_TYPE } from '../tasks/types';
+import { Card } from './card.model';
 import { CARD_WORD_ARRAY, CreateCardBody, GetCardsQuery, ICard, UpdateCardBody } from './types';
 import { getRandomInt, getRandomWord, getSortingCondition, transformCards, getCorrectAnswers } from './utils';
 
