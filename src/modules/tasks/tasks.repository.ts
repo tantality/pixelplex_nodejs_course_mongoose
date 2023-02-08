@@ -1,9 +1,10 @@
 import { Aggregate, FilterQuery, ObjectId, PipelineStage, ProjectionType } from 'mongoose';
-import { changeTypeFromObjectIdToTypesObjectId, changeTypeOfArrayFromObjectIdToTypesObjectId } from '../../utils';
+import { SortingConditionWithDirectionAsNumber, SORT_DIRECTION } from '../../types';
+import { changeTypeFromObjectIdToTypesObjectId, changeTypeOfArrayFromObjectIdToTypesObjectId, getSortDirectionAsNumber } from '../../utils';
 import { Task } from './task.model';
 import { DEFAULT_ANSWER_STATISTICS } from './tasks.constants';
-import { AnswerStatisticsByLanguage, CreateTaskData, GetStatisticsQuery, GetTasksQuery, ITask, UpdateTaskData } from './types';
-import { createSortingCondition, isObjectEmpty } from './utils';
+import { AnswerStatisticsByLanguage, CreateTaskData, GetStatisticsQuery, GetTasksQuery, ITask, TASK_SORT_BY, UpdateTaskData } from './types';
+import { isObjectEmpty } from './utils';
 
 export class TasksRepository {
   static findAndCountAll = async (userId: ObjectId, query: GetTasksQuery): Promise<{ count: number; tasks: ITask[] }> => {
@@ -11,7 +12,7 @@ export class TasksRepository {
 
     const findCondition = TasksRepository.createConditionToFindTasks({ ...conditionParameters, userId });
     const fieldSelectionConfig = TasksRepository.createDTOFieldSelectionConfig();
-    const sortingCondition = createSortingCondition(sortBy, sortDirection);
+    const sortingCondition = TasksRepository.createSortingConditionForTasks(sortBy, sortDirection);
 
     const tasksCountPromise = TasksRepository.countAll(findCondition);
     const tasksAggregate: Aggregate<ITask[]> = Task.aggregate([
@@ -79,6 +80,20 @@ export class TasksRepository {
     };
 
     return fieldSelectionConfig;
+  };
+
+  private static createSortingConditionForTasks = (sortBy: string, sortDirection: string): SortingConditionWithDirectionAsNumber<ITask> => {
+    let sortingCondition: SortingConditionWithDirectionAsNumber<ITask> = {};
+    const sortDirectionAsNumber = getSortDirectionAsNumber(sortDirection as SORT_DIRECTION);
+
+    switch (sortBy) {
+    case TASK_SORT_BY.DATE: {
+      sortingCondition = { createdAt: sortDirectionAsNumber };
+      break;
+    }
+    }
+
+    return sortingCondition;
   };
 
   static countAll = async (condition: FilterQuery<ITask>): Promise<number> => {
