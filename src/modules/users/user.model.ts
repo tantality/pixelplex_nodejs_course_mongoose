@@ -1,5 +1,12 @@
 import { model, Schema, Types } from 'mongoose';
-import { IUser, USER_ROLE } from '../modules/users/types';
+import { REFRESH_TOKEN_LIFETIME_IN_MS } from '../auth/auth.constants';
+import { IToken } from '../auth/types';
+import { IUser, USER_ROLE } from './types';
+
+const tokenSchema = new Schema<IToken>({
+  value: { type: String, index: true },
+  expiresAt: { type: Date, default: (): number => Date.now() + REFRESH_TOKEN_LIFETIME_IN_MS },
+});
 
 const userSchema = new Schema<IUser>(
   {
@@ -9,6 +16,7 @@ const userSchema = new Schema<IUser>(
     normalizedEmail: { type: String, unique: true, index: true, required: true },
     password: { type: String, required: true },
     role: { type: String, enum: [USER_ROLE.USER, USER_ROLE.ADMIN], default: USER_ROLE.USER },
+    refreshTokens: { type: [tokenSchema] },
   },
   { timestamps: true },
 );

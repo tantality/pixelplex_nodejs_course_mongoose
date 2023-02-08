@@ -18,7 +18,7 @@ export const checkLanguagesValidity = async (nativeLanguageId: ObjectId | null, 
       throw new BadRequestError(NATIVE_AND_FOREIGN_LANGUAGE_ARE_EQUAL_MESSAGE);
     }
 
-    const foreignLanguage = await LanguagesService.findOneByCondition({ _id: foreignLanguageId });
+    const foreignLanguage = await LanguagesService.findOne({ _id: foreignLanguageId });
     if (!foreignLanguage) {
       throw new NotFoundError(LANGUAGE_NOT_FOUND_MESSAGE);
     }
