@@ -1,5 +1,5 @@
 import { FilterQuery, ObjectId, ProjectionType, QueryOptions } from 'mongoose';
-import { Card } from '../../models/card.model';
+import { Card } from './card.model';
 import { CreateCardBody, GetCardsQuery, ICard, UpdateCardBody } from './types';
 import { getSortingCondition, transformCards } from './utils';
 
