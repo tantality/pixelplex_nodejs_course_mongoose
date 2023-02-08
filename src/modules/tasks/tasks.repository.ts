@@ -1,23 +1,36 @@
 import { Aggregate, FilterQuery, ObjectId, PipelineStage, ProjectionType } from 'mongoose';
 import { SortingConditionWithDirectionAsNumber, SORT_DIRECTION } from '../../types';
 import { changeTypeFromObjectIdToTypesObjectId, changeTypeOfArrayFromObjectIdToTypesObjectId, getSortDirectionAsNumber } from '../../utils';
+import { LanguagesRepository } from '../languages/languages.repository';
 import { Task } from './task.model';
 import { DEFAULT_ANSWER_STATISTICS } from './tasks.constants';
 import { AnswerStatisticsByLanguage, CreateTaskData, GetStatisticsQuery, GetTasksQuery, ITask, TASK_SORT_BY, UpdateTaskData } from './types';
 import { isObjectEmpty } from './utils';
 
 export class TasksRepository {
+  static DTO_FIELD_SELECTION_CONFIG: ProjectionType<ITask> = {
+    _id: 0,
+    id: '$_id',
+    nativeLanguageId: 1,
+    foreignLanguageId: 1,
+    type: 1,
+    status: 1,
+    hiddenWord: 1,
+    correctAnswers: { $cond: { if: { $size: '$correctAnswers' }, then: '$correctAnswers', else: '$$REMOVE' } },
+    receivedAnswer: { $ifNull: ['$receivedAnswer', '$$REMOVE'] },
+    createdAt: 1,
+  };
+
   static findAndCountAll = async (userId: ObjectId, query: GetTasksQuery): Promise<{ count: number; tasks: ITask[] }> => {
     const { sortDirection, sortBy, limit, offset, ...conditionParameters } = query;
 
     const findingCondition = TasksRepository.createFindingConditionForTasks({ ...conditionParameters, userId });
-    const fieldSelectionConfig = TasksRepository.createDTOFieldSelectionConfig();
     const sortingCondition = TasksRepository.createSortingConditionForTasks(sortBy, sortDirection);
 
     const tasksCountPromise = TasksRepository.countAll(findingCondition);
     const tasksAggregate: Aggregate<ITask[]> = Task.aggregate([
       { $match: findingCondition },
-      { $project: fieldSelectionConfig as { [field: string]: any } },
+      { $project: TasksRepository.DTO_FIELD_SELECTION_CONFIG as { [field: string]: any } },
       { $sort: sortingCondition },
       { $skip: offset },
       { $limit: limit },
@@ -63,23 +76,6 @@ export class TasksRepository {
     const languagesCondition = { $or: [{ nativeLanguageId: recreatedLanguageId }, { foreignLanguageId: recreatedLanguageId }] };
 
     return languagesCondition;
-  };
-
-  private static createDTOFieldSelectionConfig = (): ProjectionType<ITask> => {
-    const fieldSelectionConfig: ProjectionType<ITask> = {
-      _id: 0,
-      id: '$_id',
-      nativeLanguageId: 1,
-      foreignLanguageId: 1,
-      type: 1,
-      status: 1,
-      hiddenWord: 1,
-      correctAnswers: { $cond: { if: { $size: '$correctAnswers' }, then: '$correctAnswers', else: '$$REMOVE' } },
-      receivedAnswer: { $ifNull: ['$receivedAnswer', '$$REMOVE'] },
-      createdAt: 1,
-    };
-
-    return fieldSelectionConfig;
   };
 
   private static createSortingConditionForTasks = (sortBy: string, sortDirection: string): SortingConditionWithDirectionAsNumber<ITask> => {
@@ -226,7 +222,7 @@ export class TasksRepository {
       let: { hiddenWordLanguageId: '$hiddenWordLanguageId' },
       pipeline: [
         { $match: { $expr: { $eq: ['$_id', '$$hiddenWordLanguageId'] } } },
-        { $project: { _id: 0, id: '$_id', code: 1, name: 1, createdAt: 1 } },
+        { $project: LanguagesRepository.DTO_FIELD_SELECTION_CONFIG as { [field: string]: any } },
       ],
       as: 'language',
     };
