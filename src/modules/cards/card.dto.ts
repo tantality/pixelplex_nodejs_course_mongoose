@@ -1,19 +1,19 @@
+import { ObjectId } from 'mongoose';
 import { ICard } from './types';
-import { WordDTO } from './word.dto';
 
-export class CardDTO implements Omit<ICard, 'userId' | 'updatedAt'> {
-  public readonly id: number;
-  public readonly nativeLanguageId: number;
-  public readonly nativeWords: WordDTO[];
-  public readonly foreignLanguageId: number;
-  public readonly foreignWords: WordDTO[];
+export class CardDTO implements Omit<ICard, '_id' | 'userId' | 'updatedAt'> {
+  public readonly id: ObjectId;
+  public readonly nativeLanguageId: ObjectId;
+  public readonly nativeWords: string[];
+  public readonly foreignLanguageId: ObjectId;
+  public readonly foreignWords: string[];
   public readonly createdAt: Date;
-  constructor(card: ICard, nativeWords: WordDTO[], foreignWords: WordDTO[]) {
-    this.id = card.id;
+  constructor(card: ICard) {
+    this.id = card._id;
     this.nativeLanguageId = card.nativeLanguageId;
-    this.nativeWords = nativeWords;
+    this.nativeWords = card.nativeWords;
     this.foreignLanguageId = card.foreignLanguageId;
-    this.foreignWords = foreignWords;
+    this.foreignWords = card.foreignWords;
     this.createdAt = card.createdAt;
   }
 }

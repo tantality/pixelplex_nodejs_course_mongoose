@@ -1,8 +1,7 @@
 import { Response } from 'express';
 import { CardDTO } from '../card.dto';
-import { GetCardsCommon } from './common.types';
+import { ICard } from './cards.types';
 
-export type GetCardsResponse = Response<GetCardsCommon>;
+export type GetCardsResponse = Response<{ count: number; cards: ICard[] }>;
 export type CreateCardResponse = Response<CardDTO>;
 export type UpdateCardResponse = Response<CardDTO>;
-export type DeleteCardResponse = Response<{ id: number }>;

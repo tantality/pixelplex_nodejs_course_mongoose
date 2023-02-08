@@ -1,3 +1,3 @@
-type WithTaskId = { taskId: number };
+import { ObjectId } from 'mongoose';
 
-export type AddAnswerToTaskParams = WithTaskId;
+export type UpdateTaskParams = { taskId: ObjectId };

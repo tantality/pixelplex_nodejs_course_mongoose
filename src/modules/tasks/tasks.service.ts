@@ -1,60 +1,101 @@
-/* eslint-disable require-await */
-import { logRequest } from '../../utils';
-import { LanguageDTO } from '../languages/language.dto';
-import { Language } from '../languages/language.entity';
-import { TaskDTO } from './task.dto';
-import { Task } from './task.entity';
+import { FilterQuery, ObjectId } from 'mongoose';
 import {
-  GetTasksRequest,
-  GetTasksCommon,
-  GetStatisticsCommon,
-  GetStatisticsRequest,
-  CreateTaskCommon,
-  AddAnswerToTaskRequest,
-  CreateTaskRequest,
+  ANSWER_TO_TASK_ALREADY_EXISTS_MESSAGE,
+  BadRequestError,
+  NotFoundError,
+  NO_CARDS_FOUND_WITH_THE_LANGUAGE_MESSAGE,
+  TASK_NOT_FOUND_MESSAGE,
+} from '../../errors';
+import { checkLanguagesValidity } from '../../utils';
+import { CardsService } from '../cards/cards.service';
+import { IUser } from '../users/types';
+import { UsersService } from '../users/users.service';
+import { TaskDTO } from './task.dto';
+import { TasksRepository } from './tasks.repository';
+import {
+  ITask,
+  CreatedTaskDTO,
+  CreateTaskBody,
+  TASK_TYPE,
+  TASK_STATUS,
+  UpdateTaskBody,
+  UpdateTaskParams,
+  GetTasksQuery,
+  GetStatisticsQuery,
+  AnswerStatisticsByLanguage,
 } from './types';
-
-const languageDTO = new LanguageDTO(new Language('russian', 'ru', new Date(), new Date()));
-const task = new Task(1, 1, 'to_foreign', 'correct', ['привет'], 'привет', new Date(), new Date());
-const taskDTO = new TaskDTO(task, 'hello', 1, 2);
+import { getAnswerStatus } from './utils';
 
 export class TasksService {
-  static findAll = async (req: GetTasksRequest): Promise<GetTasksCommon | null> => {
-    logRequest(req);
-    return {
-      count: 30,
-      tasks: [taskDTO],
-    };
+  static findAndCountAll = async (userId: ObjectId, query: GetTasksQuery): Promise<{ count: number; tasks: ITask[] }> => {
+    const tasksAndTheirCount = await TasksRepository.findAndCountAll(userId, query);
+    return tasksAndTheirCount;
   };
 
-  static calculateStatistics = async (req: GetStatisticsRequest): Promise<GetStatisticsCommon | null> => {
-    logRequest(req);
-    const statistics = [
-      {
-        language: languageDTO,
-        answers: {
-          correct: 10,
-          incorrect: 1,
-        },
-      },
-    ];
+  static findOne = async (condition: FilterQuery<ITask>): Promise<ITask | null> => {
+    const task = await TasksRepository.findOne(condition);
+    return task;
+  };
 
+  static calculateAnswerStatisticsByLanguage = async (
+    userId: ObjectId,
+    query: GetStatisticsQuery,
+  ): Promise<{ statistics: AnswerStatisticsByLanguage[] }> => {
+    const statistics = await TasksRepository.calculateAnswerStatisticsByLanguage(userId, query);
     return statistics;
   };
 
-  static create = async (req: CreateTaskRequest): Promise<CreateTaskCommon> => {
-    logRequest(req);
+  static create = async (userId: ObjectId, { type, foreignLanguageId }: CreateTaskBody): Promise<CreatedTaskDTO> => {
+    let { nativeLanguageId } = (await UsersService.findOne({ _id: userId })) as IUser;
+
+    await checkLanguagesValidity(nativeLanguageId, foreignLanguageId);
+
+    nativeLanguageId = nativeLanguageId as ObjectId;
+
+    const hiddenWordLanguageId = type === TASK_TYPE.TO_NATIVE ? foreignLanguageId : nativeLanguageId;
+    const hiddenWord = await CardsService.findRandomWord(userId, nativeLanguageId, foreignLanguageId, hiddenWordLanguageId);
+    if (!hiddenWord) {
+      throw new BadRequestError(NO_CARDS_FOUND_WITH_THE_LANGUAGE_MESSAGE);
+    }
+
+    const createdTask = await TasksRepository.create({
+      userId,
+      hiddenWord,
+      type,
+      nativeLanguageId,
+      foreignLanguageId,
+      hiddenWordLanguageId,
+    });
+
     return {
-      id: 1,
-      nativeLanguageId: 1,
-      foreignLanguageId: 2,
-      word: 'hello',
-      type: 'to_native',
+      id: createdTask._id,
+      nativeLanguageId,
+      foreignLanguageId,
+      word: hiddenWord,
+      type,
     };
   };
 
-  static addAnswer = async (req: AddAnswerToTaskRequest): Promise<TaskDTO> => {
-    logRequest(req);
-    return taskDTO;
+  static update = async (userId: ObjectId, { taskId }: UpdateTaskParams, { answer }: UpdateTaskBody): Promise<TaskDTO> => {
+    const taskToUpdate = await TasksService.findOne({ _id: taskId, userId });
+    if (!taskToUpdate) {
+      throw new NotFoundError(TASK_NOT_FOUND_MESSAGE);
+    }
+
+    const { _id, hiddenWord, type, status, nativeLanguageId, foreignLanguageId } = taskToUpdate;
+
+    if (status !== TASK_STATUS.UNANSWERED) {
+      throw new BadRequestError(ANSWER_TO_TASK_ALREADY_EXISTS_MESSAGE);
+    }
+
+    const taskDataToFindAnswers = { hiddenWord, userId, type, nativeLanguageId, foreignLanguageId };
+    const correctAnswers = await CardsService.findCorrectAnswersToTask(taskDataToFindAnswers);
+
+    const answerStatus = getAnswerStatus(correctAnswers, answer);
+
+    const taskDataToUpdate = { correctAnswers, receivedAnswer: answer, status: answerStatus };
+    const updatedTask = await TasksRepository.update(_id, taskDataToUpdate);
+
+    return new TaskDTO(updatedTask);
   };
 }
