@@ -3,27 +3,28 @@ import { NotFoundError, CARD_NOT_FOUND_MESSAGE } from '../../errors';
 import { checkLanguagesValidity } from '../../utils';
 import { IUser } from '../users/types';
 import { UsersService } from '../users/users.service';
-import { CardDTO } from './card.dto';
 import { CardsRepository } from './cards.repository';
-import { ICard, CreateCardBody, UpdateCardBody, GetCardsQuery } from './types';
+import { ICard, GetCardsQuery, CardDTO, CreateCardDTO, UpdateCardDTO } from './types';
 
 export class CardsService {
-  static findAndCountAll = async (userId: ObjectId, query: GetCardsQuery): Promise<{ count: number; cards: ICard[] }> => {
-    const cardsAndTheirCount = await CardsRepository.findAndCountAll(userId, query);
+  static findAndCountAll = async (
+    cardSelectionParameters: GetCardsQuery & { userId: ObjectId },
+  ): Promise<{ count: number; cards: ICard[] }> => {
+    const cardsAndTheirCount = await CardsRepository.findAndCountAll(cardSelectionParameters);
     return cardsAndTheirCount;
   };
 
-  static create = async (userId: ObjectId, body: CreateCardBody): Promise<CardDTO> => {
-    const { nativeLanguageId } = (await UsersService.findOne({ _id: userId })) as IUser;
+  static create = async (cardData: Omit<CreateCardDTO, 'nativeLanguageId'>): Promise<CardDTO> => {
+    const { nativeLanguageId } = (await UsersService.findOne({ _id: cardData.userId })) as IUser;
 
-    await checkLanguagesValidity(nativeLanguageId, body.foreignLanguageId);
+    await checkLanguagesValidity(nativeLanguageId, cardData.foreignLanguageId);
 
-    const createdCard = await CardsRepository.create(userId, nativeLanguageId as ObjectId, body);
+    const createdCard = await CardsRepository.create({ ...cardData, nativeLanguageId: nativeLanguageId as ObjectId });
 
     return new CardDTO(createdCard);
   };
 
-  static update = async (userId: ObjectId, cardId: ObjectId, body: UpdateCardBody): Promise<CardDTO> => {
+  static update = async (userId: ObjectId, cardId: ObjectId, cardData: UpdateCardDTO): Promise<CardDTO> => {
     const cardToUpdate = await CardsService.findOne({ userId, _id: cardId });
     if (!cardToUpdate) {
       throw new NotFoundError(CARD_NOT_FOUND_MESSAGE);
@@ -31,9 +32,9 @@ export class CardsService {
 
     const { nativeLanguageId } = (await UsersService.findOne({ _id: userId })) as IUser;
 
-    await checkLanguagesValidity(nativeLanguageId, body.foreignLanguageId);
+    await checkLanguagesValidity(nativeLanguageId, cardData.foreignLanguageId);
 
-    const updatedCard = await CardsRepository.update(cardId, body);
+    const updatedCard = await CardsRepository.update(cardId, cardData);
 
     return new CardDTO(updatedCard);
   };
@@ -48,7 +49,7 @@ export class CardsService {
   };
 
   static findOne = async (condition: FilterQuery<ICard>): Promise<ICard | null> => {
-    const card = await CardsRepository.findOneByCondition(condition);
+    const card = await CardsRepository.findOne(condition);
     return card;
   };
 }

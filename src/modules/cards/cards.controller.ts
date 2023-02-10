@@ -14,7 +14,7 @@ import {
 export class CardsController {
   static getCards = async (req: GetCardsRequest, res: GetCardsResponse, next: NextFunction): Promise<void> => {
     try {
-      const cards = await CardsService.findAndCountAll(req.userId as ObjectId, req.query);
+      const cards = await CardsService.findAndCountAll({ userId: req.userId as ObjectId, ...req.query });
       res.status(200).json(cards);
     } catch (err) {
       next(err);
@@ -23,7 +23,7 @@ export class CardsController {
 
   static createCard = async (req: CreateCardRequest, res: CreateCardResponse, next: NextFunction): Promise<void> => {
     try {
-      const createdCard = await CardsService.create(req.userId as ObjectId, req.body);
+      const createdCard = await CardsService.create({ userId: req.userId as ObjectId, ...req.body });
       res.status(201).json(createdCard);
     } catch (err) {
       next(err);

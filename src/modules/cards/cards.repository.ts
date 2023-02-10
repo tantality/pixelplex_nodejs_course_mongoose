@@ -1,53 +1,57 @@
 import { FilterQuery, ObjectId, ProjectionType, QueryOptions } from 'mongoose';
 import { Card } from './card.model';
-import { CreateCardBody, GetCardsQuery, ICard, UpdateCardBody } from './types';
+import { CreateCardDTO, GetCardsQuery, ICard, UpdateCardDTO } from './types';
 import { getSortingCondition, transformCards } from './utils';
 
 export class CardsRepository {
   static findAndCountAll = async (
-    userId: ObjectId,
-    { search, sortBy, sortDirection, limit, offset, languageId }: GetCardsQuery,
+    cardSelectionParameters: GetCardsQuery & { userId: ObjectId },
   ): Promise<{ count: number; cards: ICard[] }> => {
-    const filter = CardsRepository.getFilterToFindCards(userId, languageId, search);
-    const projectionFields: ProjectionType<ICard> = { userId: 0, updatedAt: 0 };
+    const { search, sortBy, sortDirection, limit, offset, languageId, userId } = cardSelectionParameters;
+
+    const findingCondition = CardsRepository.createFindingConditionForCards({ userId, languageId, search });
+    const fieldSelectionConfig: ProjectionType<ICard> = { userId: 0, updatedAt: 0 };
     const options: QueryOptions<ICard> = {
       skip: offset,
       limit,
       sort: getSortingCondition(sortBy, sortDirection),
     };
 
-    const cardsQuery = Card.find(filter, projectionFields, options).transform((cards) => {
+    const cardsQuery = Card.find(findingCondition, fieldSelectionConfig, options).transform((cards) => {
       return transformCards(cards, sortDirection, sortBy);
     });
-    const cardsNumberPromise = CardsRepository.countAll(filter);
+    const cardsNumberPromise = CardsRepository.countAll(findingCondition);
 
     const [count, cards] = await Promise.all([cardsNumberPromise, cardsQuery]);
 
     return { count, cards };
   };
 
-  private static getFilterToFindCards = (userId: ObjectId, languageId?: ObjectId, search?: string): FilterQuery<ICard> => {
-    const searchInWordsCondition = CardsRepository.getSearchInWordsCondition(search);
-    const languagesCondition = CardsRepository.getLanguagesCondition(languageId);
+  private static createFindingConditionForCards = (
+    conditionParameters: Pick<GetCardsQuery, 'languageId' | 'search'> & { userId: ObjectId },
+  ): FilterQuery<ICard> => {
+    const { search, languageId, userId } = conditionParameters;
 
-    const filter: FilterQuery<ICard> = {
+    const searchInWordsCondition = CardsRepository.createSearchInWordsCondition(search);
+    const languagesCondition = CardsRepository.createLanguagesCondition(languageId);
+
+    const condition: FilterQuery<ICard> = {
       userId,
       $and: [searchInWordsCondition, languagesCondition],
     };
 
-    return filter;
+    return condition;
   };
 
-  private static getSearchInWordsCondition = (search?: string): FilterQuery<ICard> => {
+  private static createSearchInWordsCondition = (search?: string): FilterQuery<ICard> => {
     const searchCondition = search ? { $regex: new RegExp(search, 'i') } : null;
     const searchInWordsCondition = searchCondition ? { $or: [{ nativeWords: searchCondition }, { foreignWords: searchCondition }] } : {};
 
     return searchInWordsCondition;
   };
 
-  private static getLanguagesCondition = (languageId?: ObjectId): FilterQuery<ICard> => {
+  private static createLanguagesCondition = (languageId?: ObjectId): FilterQuery<ICard> => {
     const languagesCondition = languageId ? { $or: [{ nativeLanguageId: languageId }, { foreignLanguageId: languageId }] } : {};
-
     return languagesCondition;
   };
 
@@ -56,25 +60,25 @@ export class CardsRepository {
     return count;
   };
 
-  static findOneByCondition = async (condition: FilterQuery<ICard>): Promise<ICard | null> => {
-    const card = await Card.findOne(condition);
-    return card;
-  };
-
-  static create = async (userId: ObjectId, nativeLanguageId: ObjectId, body: CreateCardBody): Promise<ICard> => {
-    const createdLanguage = await Card.create({ userId, nativeLanguageId, ...body });
+  static create = async (cardData: CreateCardDTO): Promise<ICard> => {
+    const createdLanguage = await Card.create(cardData);
     return createdLanguage;
   };
 
-  static update = async (_id: ObjectId, body: UpdateCardBody): Promise<ICard> => {
-    await Card.updateOne({ _id }, body);
+  static update = async (id: ObjectId, cardData: UpdateCardDTO): Promise<ICard> => {
+    await Card.updateOne({ _id: id }, cardData);
 
-    const updatedLanguage = (await CardsRepository.findOneByCondition({ _id })) as ICard;
+    const updatedLanguage = (await CardsRepository.findOne({ _id: id })) as ICard;
 
     return updatedLanguage;
   };
 
-  static delete = async (_id: ObjectId): Promise<void> => {
-    await Card.deleteOne({ _id });
+  static findOne = async (condition: FilterQuery<ICard>): Promise<ICard | null> => {
+    const card = await Card.findOne(condition);
+    return card;
+  };
+
+  static delete = async (id: ObjectId): Promise<void> => {
+    await Card.deleteOne({ _id: id });
   };
 }
