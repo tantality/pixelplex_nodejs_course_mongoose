@@ -1,7 +1,8 @@
 import { FilterQuery, ObjectId, ProjectionType, QueryOptions } from 'mongoose';
+import { SortingCondition, SORT_DIRECTION } from '../../types';
 import { Card } from './card.model';
-import { CreateCardDTO, GetCardsQuery, ICard, UpdateCardDTO } from './types';
-import { getSortingCondition, transformCards } from './utils';
+import { CARD_SORT_BY, CreateCardDTO, GetCardsQuery, ICard, UpdateCardDTO } from './types';
+import { transformCards } from './utils';
 
 export class CardsRepository {
   static findAndCountAll = async (
@@ -11,10 +12,11 @@ export class CardsRepository {
 
     const findingCondition = CardsRepository.createFindingConditionForCards({ userId, languageId, search });
     const fieldSelectionConfig: ProjectionType<ICard> = { userId: 0, updatedAt: 0 };
+    const sortingCondition = CardsRepository.createSortingConditionForCards(sortBy, sortDirection);
     const options: QueryOptions<ICard> = {
       skip: offset,
       limit,
-      sort: getSortingCondition(sortBy, sortDirection),
+      sort: sortingCondition,
     };
 
     const cardsQuery = Card.find(findingCondition, fieldSelectionConfig, options).transform((cards) => {
@@ -53,6 +55,23 @@ export class CardsRepository {
   private static createLanguagesCondition = (languageId?: ObjectId): FilterQuery<ICard> => {
     const languagesCondition = languageId ? { $or: [{ nativeLanguageId: languageId }, { foreignLanguageId: languageId }] } : {};
     return languagesCondition;
+  };
+
+  private static createSortingConditionForCards = (
+    sortBy: string,
+    sortDir: string,
+  ): SortingCondition<Omit<ICard, 'nativeWords' | 'foreignWOrds'>> => {
+    let sortingCondition: SortingCondition<Omit<ICard, 'nativeWords' | 'foreignWOrds'>> = {};
+    const sortDirection: SORT_DIRECTION = sortDir as SORT_DIRECTION;
+
+    switch (sortBy) {
+    case CARD_SORT_BY.DATE: {
+      sortingCondition = { createdAt: sortDirection };
+      break;
+    }
+    }
+
+    return sortingCondition;
   };
 
   static countAll = async (condition: FilterQuery<ICard>): Promise<number> => {
