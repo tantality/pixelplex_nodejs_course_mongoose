@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongoose';
-import { ICard } from './types';
+import { ICard, UpdateCardBody } from '.';
 
 export class CardDTO implements Omit<ICard, '_id' | 'userId' | 'updatedAt'> {
   public readonly id: ObjectId;
@@ -17,3 +17,6 @@ export class CardDTO implements Omit<ICard, '_id' | 'userId' | 'updatedAt'> {
     this.createdAt = card.createdAt;
   }
 }
+
+export type CreateCardDTO = Omit<ICard, 'updatedAt' | 'createdAt' | '_id'>;
+export type UpdateCardDTO = UpdateCardBody;
