@@ -5,8 +5,8 @@ import { LanguageDTO } from './language.dto';
 import { LanguagesRepository } from './languages.repository';
 
 export class LanguagesService {
-  static findAndCountAll = async (query: GetLanguagesQuery): Promise<{ count: number; languages: ILanguage[] }> => {
-    const languagesAndTheirCount = await LanguagesRepository.findAndCountAll(query);
+  static findAndCountAll = async (selectionAndOutputParameters: GetLanguagesQuery): Promise<{ count: number; languages: ILanguage[] }> => {
+    const languagesAndTheirCount = await LanguagesRepository.findAndCountAll(selectionAndOutputParameters);
     return languagesAndTheirCount;
   };
 
