@@ -7,11 +7,11 @@ import {
   USER_NOT_FOUND_MESSAGE,
 } from '../../errors';
 import { LanguagesService } from '../languages/languages.service';
-import { CreateUserData, IUser, UpdateUserBody } from './types';
+import { CreateUserDTO, IUser, UpdateUserDTO } from './types';
 import { UsersRepository } from './users.repository';
 
 export class UsersService {
-  static create = async (userData: CreateUserData): Promise<IUser> => {
+  static create = async (userData: CreateUserDTO): Promise<IUser> => {
     const nativeLanguage = await LanguagesService.findOne({ _id: userData.nativeLanguageId });
     if (!nativeLanguage) {
       throw new NotFoundError(LANGUAGE_NOT_FOUND_MESSAGE);
@@ -27,7 +27,7 @@ export class UsersService {
     return createdUser;
   };
 
-  static update = async (userId: ObjectId, body: UpdateUserBody): Promise<IUser> => {
+  static update = async (userId: ObjectId, body: UpdateUserDTO): Promise<IUser> => {
     const userToUpdate = await UsersService.findOne({ _id: userId });
     if (!userToUpdate) {
       throw new NotFoundError(USER_NOT_FOUND_MESSAGE);

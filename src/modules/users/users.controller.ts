@@ -1,7 +1,6 @@
 import { NextFunction, Request } from 'express';
 import { NotFoundError, USER_NOT_FOUND_MESSAGE } from '../../errors';
-import { GetOneUserResponse, UpdateUserRequest, UpdateUserResponse } from './types';
-import { UserDTO } from './user.dto';
+import { GetOneUserResponse, UpdateUserRequest, UpdateUserResponse, UserDTO } from './types';
 import { UsersService } from './users.service';
 
 export class UsersController {
