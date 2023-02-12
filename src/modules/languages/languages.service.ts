@@ -1,40 +1,39 @@
 import { FilterQuery, ObjectId } from 'mongoose';
 import { BadRequestError, LANGUAGE_ALREADY_EXISTS_MESSAGE, LANGUAGE_CANNOT_BE_DELETED_MESSAGE, LANGUAGE_NOT_FOUND_MESSAGE, NotFoundError } from '../../errors';
 import { UsersService } from '../users/users.service';
-import { UpdateLanguageBody, CreateLanguageBody, GetLanguagesQuery, ILanguage } from './types';
-import { LanguageDTO } from './language.dto';
+import { GetLanguagesQuery, ILanguage, LanguageDTO, CreateLanguageDTO, UpdateLanguageDTO } from './types';
 import { LanguagesRepository } from './languages.repository';
 
 export class LanguagesService {
-  static findAndCountAll = async (query: GetLanguagesQuery): Promise<{ count: number; languages: ILanguage[] }> => {
-    const languagesAndTheirCount = await LanguagesRepository.findAndCountAll(query);
+  static findAndCountAll = async (selectionAndOutputParameters: GetLanguagesQuery): Promise<{ count: number; languages: ILanguage[] }> => {
+    const languagesAndTheirCount = await LanguagesRepository.findAndCountAll(selectionAndOutputParameters);
     return languagesAndTheirCount;
   };
 
-  static create = async (body: CreateLanguageBody): Promise<LanguageDTO> => {
-    const language = await LanguagesService.findOne({ code: body.code });
+  static create = async (createLanguageDTO: CreateLanguageDTO): Promise<LanguageDTO> => {
+    const language = await LanguagesService.findOne({ code: createLanguageDTO.code });
     if (language) {
       throw new BadRequestError(LANGUAGE_ALREADY_EXISTS_MESSAGE);
     }
 
-    const createdLanguage = await LanguagesRepository.create(body);
+    const createdLanguage = await LanguagesRepository.create(createLanguageDTO);
 
     return new LanguageDTO(createdLanguage);
   };
 
-  static update = async (languageId: ObjectId, body: UpdateLanguageBody): Promise<LanguageDTO> => {
+  static update = async (languageId: ObjectId, updateLanguageDTO: UpdateLanguageDTO): Promise<LanguageDTO> => {
     const languageToUpdate = await LanguagesService.findOne({ _id: languageId });
     if (!languageToUpdate) {
       throw new NotFoundError(LANGUAGE_NOT_FOUND_MESSAGE);
     }
 
-    const { code } = body;
+    const { code } = updateLanguageDTO;
     const language = code && (await LanguagesService.findOne({ code }));
     if (language) {
       throw new BadRequestError(LANGUAGE_ALREADY_EXISTS_MESSAGE);
     }
 
-    const updatedLanguage = await LanguagesRepository.update(languageId, body);
+    const updatedLanguage = await LanguagesRepository.update(languageId, updateLanguageDTO);
 
     return new LanguageDTO(updatedLanguage);
   };

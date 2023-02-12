@@ -18,5 +18,3 @@ export enum USER_ROLE {
   USER = 'user',
   ADMIN = 'admin',
 }
-
-export type CreateUserData = Pick<IUser, 'name' | 'email' | 'normalizedEmail' | 'password'> & { nativeLanguageId: ObjectId };

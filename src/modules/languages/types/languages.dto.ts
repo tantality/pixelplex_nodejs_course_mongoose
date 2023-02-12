@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongoose';
-import { ILanguage } from './types';
+import { CreateLanguageBody, ILanguage, UpdateLanguageBody } from '.';
 
 export class LanguageDTO implements Omit<ILanguage, 'updatedAt' | '_id'> {
   public readonly id: ObjectId;
@@ -13,3 +13,6 @@ export class LanguageDTO implements Omit<ILanguage, 'updatedAt' | '_id'> {
     this.createdAt = language.createdAt;
   }
 }
+
+export type CreateLanguageDTO = CreateLanguageBody;
+export type UpdateLanguageDTO = UpdateLanguageBody;
