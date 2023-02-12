@@ -1,6 +1,6 @@
 import { Response } from 'express';
-import { LanguageDTO } from '../language.dto';
 import { ILanguage } from './languages.types';
+import { LanguageDTO } from '.';
 
 export type GetLanguagesResponse = Response<{ count: number; languages: ILanguage[] }>;
 export type GetOneLanguageResponse = Response<LanguageDTO>;

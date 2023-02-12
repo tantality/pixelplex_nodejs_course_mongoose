@@ -1,4 +1,4 @@
-import { LanguageDTO } from '../../languages/language.dto';
+import { LanguageDTO } from '../../languages/types';
 import { TaskDTO } from '../task.dto';
 
 export type GetTasksCommon = { count: number; tasks: TaskDTO[] };
