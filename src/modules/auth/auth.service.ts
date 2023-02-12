@@ -11,12 +11,12 @@ import {
   USER_NOT_FOUND_MESSAGE,
 } from '../../errors/error-messages.constants';
 import { UsersService } from '../users/users.service';
-import { IAuth, LogInBody, SignUpBody } from './types';
+import { IAuth, LogInDTO, SignUpDTO } from './types';
 import { TokensService } from './tokens.service';
 import { SALT_ROUNDS } from './auth.constants';
 
 export class AuthService {
-  static signUp = async (body: SignUpBody): Promise<IAuth> => {
+  static signUp = async (body: SignUpDTO): Promise<IAuth> => {
     const normalizedEmail = normalizeEmail(body.email);
     const user = await UsersService.findOne({ normalizedEmail });
     if (user) {
@@ -36,7 +36,7 @@ export class AuthService {
     };
   };
 
-  static logIn = async ({ email, password }: LogInBody): Promise<IAuth> => {
+  static logIn = async ({ email, password }: LogInDTO): Promise<IAuth> => {
     const normalizedEmail = normalizeEmail(email);
     const user = await UsersService.findOne({ normalizedEmail });
     if (!user) {
