@@ -1,12 +1,14 @@
+import { ObjectId } from 'mongoose';
+
 export interface IUser {
-  id: number;
-  nativeLanguageId: number;
+  _id: ObjectId;
+  nativeLanguageId: ObjectId | null;
   name: string;
   email: string;
   normalizedEmail: string;
   password: string;
   role: string;
-  refreshToken: string | null;
+  refreshTokens: string[] | null;
   createdAt: Date;
   updatedAt: Date;
 }

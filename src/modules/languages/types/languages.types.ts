@@ -1,6 +1,9 @@
+import { ObjectId } from 'mongoose';
+
 export interface ILanguage {
-  id: number;
+  _id: ObjectId;
   name: string;
+  nameInLowercase?: string;
   code: string;
   createdAt: Date;
   updatedAt: Date;

@@ -1,5 +1,5 @@
 import { Schema } from 'express-validator';
-import { validateIdInBody, validateStringLength } from '../../validations';
+import { validateId, validateStringLength } from '../../validations';
 import { MIN_NAME_LENGTH, MAX_NAME_LENGTH, MIN_PASSWORD_LENGTH } from './auth.constants';
 
 export class AuthValidation {
@@ -42,7 +42,7 @@ export class AuthValidation {
     ...AuthValidation.logIn,
     nativeLanguageId: {
       in: ['body'],
-      ...validateIdInBody,
+      ...validateId,
     },
   };
 }

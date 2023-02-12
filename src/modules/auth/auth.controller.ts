@@ -1,6 +1,6 @@
-import { NextFunction, Request } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { AuthService } from './auth.service';
-import { SignUpResponse, LogInResponse, LogOutResponse, RefreshTokensResponse, SignUpRequest, LogInRequest } from './types';
+import { SignUpResponse, LogInResponse, RefreshTokensResponse, SignUpRequest, LogInRequest } from './types';
 
 export class AuthController {
   static signUp = async (req: SignUpRequest, res: SignUpResponse, next: NextFunction): Promise<void> => {
@@ -21,7 +21,7 @@ export class AuthController {
     }
   };
 
-  static logOut = async (req: Request, res: LogOutResponse, next: NextFunction): Promise<void> => {
+  static logOut = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = await AuthService.logOut(req);
       res.status(200).json({ id: userId });
