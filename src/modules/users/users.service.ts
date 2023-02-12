@@ -11,34 +11,34 @@ import { CreateUserDTO, IUser, UpdateUserDTO } from './types';
 import { UsersRepository } from './users.repository';
 
 export class UsersService {
-  static create = async (userData: CreateUserDTO): Promise<IUser> => {
-    const nativeLanguage = await LanguagesService.findOne({ _id: userData.nativeLanguageId });
+  static create = async (createUserDTO: CreateUserDTO): Promise<IUser> => {
+    const nativeLanguage = await LanguagesService.findOne({ _id: createUserDTO.nativeLanguageId });
     if (!nativeLanguage) {
       throw new NotFoundError(LANGUAGE_NOT_FOUND_MESSAGE);
     }
 
-    const user = await UsersService.findOne({ normalizedEmail: userData.normalizedEmail });
+    const user = await UsersService.findOne({ normalizedEmail: createUserDTO.normalizedEmail });
     if (user) {
       throw new BadRequestError(USER_ALREADY_EXISTS_MESSAGE);
     }
 
-    const createdUser = await UsersRepository.create(userData);
+    const createdUser = await UsersRepository.create(createUserDTO);
 
     return createdUser;
   };
 
-  static update = async (userId: ObjectId, body: UpdateUserDTO): Promise<IUser> => {
+  static update = async (userId: ObjectId, updateUserDTO: UpdateUserDTO): Promise<IUser> => {
     const userToUpdate = await UsersService.findOne({ _id: userId });
     if (!userToUpdate) {
       throw new NotFoundError(USER_NOT_FOUND_MESSAGE);
     }
 
-    const nativeLanguage = await LanguagesService.findOne({ _id: body.nativeLanguageId });
+    const nativeLanguage = await LanguagesService.findOne({ _id: updateUserDTO.nativeLanguageId });
     if (!nativeLanguage) {
       throw new NotFoundError(LANGUAGE_NOT_FOUND_MESSAGE);
     }
 
-    const updatedUser = await UsersRepository.update(userId, body);
+    const updatedUser = await UsersRepository.update(userId, updateUserDTO);
 
     return updatedUser;
   };
