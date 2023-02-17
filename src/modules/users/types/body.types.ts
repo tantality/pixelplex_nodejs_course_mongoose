@@ -1,3 +1,3 @@
-import { IUser } from '.';
+import { ObjectId } from 'mongoose';
 
-export type UpdateUserBody = Pick<IUser, 'nativeLanguageId'>;
+export type UpdateUserBody = { nativeLanguageId: ObjectId };

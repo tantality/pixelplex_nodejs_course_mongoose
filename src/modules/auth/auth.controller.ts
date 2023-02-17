@@ -1,12 +1,15 @@
-import { NextFunction, Request } from 'express';
+import { NextFunction, Request, Response } from 'express';
+import { ObjectId } from 'mongoose';
+import { COOKIE_OPTIONS } from './auth.constants';
 import { AuthService } from './auth.service';
-import { SignUpResponse, LogInResponse, LogOutResponse, RefreshTokensResponse, SignUpRequest, LogInRequest } from './types';
+import { SignUpResponse, LogInResponse, RefreshTokensResponse, SignUpRequest, LogInRequest } from './types';
 
 export class AuthController {
   static signUp = async (req: SignUpRequest, res: SignUpResponse, next: NextFunction): Promise<void> => {
     try {
-      const auth = await AuthService.signUp(req);
-      res.status(201).json(auth);
+      const authData = await AuthService.signUp(req.body);
+      res.cookie('refreshToken', authData.refreshToken, COOKIE_OPTIONS);
+      res.status(201).json(authData);
     } catch (err) {
       next(err);
     }
@@ -14,17 +17,20 @@ export class AuthController {
 
   static logIn = async (req: LogInRequest, res: LogInResponse, next: NextFunction): Promise<void> => {
     try {
-      const auth = await AuthService.logIn(req);
-      res.status(200).json(auth);
+      const authData = await AuthService.logIn(req.body);
+      res.cookie('refreshToken', authData.refreshToken, COOKIE_OPTIONS);
+      res.status(200).json(authData);
     } catch (err) {
       next(err);
     }
   };
 
-  static logOut = async (req: Request, res: LogOutResponse, next: NextFunction): Promise<void> => {
+  static logOut = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = await AuthService.logOut(req);
-      res.status(200).json({ id: userId });
+      await AuthService.logOut(req.userId as ObjectId, req.cookies.refreshToken);
+
+      res.clearCookie('refreshToken');
+      res.status(200).json();
     } catch (err) {
       next(err);
     }
@@ -32,8 +38,9 @@ export class AuthController {
 
   static refreshTokens = async (req: Request, res: RefreshTokensResponse, next: NextFunction): Promise<void> => {
     try {
-      const auth = await AuthService.refresh(req);
-      res.status(200).json(auth);
+      const authData = await AuthService.refresh(req.cookies.refreshToken);
+      res.cookie('refreshToken', authData.refreshToken, COOKIE_OPTIONS);
+      res.status(200).json(authData);
     } catch (err) {
       next(err);
     }

@@ -1,44 +1,59 @@
-/* eslint-disable require-await */
-import { logRequest } from '../../utils';
-import {
-  CreateLanguageRequest,
-  DeleteLanguageRequest,
-  GetLanguagesRequest,
-  GetOneLanguageRequest,
-  UpdateLanguageRequest,
-  GetLanguagesCommon,
-} from './types';
-import { LanguageDTO } from './language.dto';
-import { Language } from './language.entity';
-
-const languageDTO = new LanguageDTO(new Language('russian', 'ru', new Date(), new Date()));
+import { FilterQuery, ObjectId } from 'mongoose';
+import { BadRequestError, LANGUAGE_ALREADY_EXISTS_MESSAGE, LANGUAGE_CANNOT_BE_DELETED_MESSAGE, LANGUAGE_NOT_FOUND_MESSAGE, NotFoundError } from '../../errors';
+import { UsersService } from '../users/users.service';
+import { GetLanguagesQuery, ILanguage, LanguageDTO, CreateLanguageDTO, UpdateLanguageDTO } from './types';
+import { LanguagesRepository } from './languages.repository';
 
 export class LanguagesService {
-  static findAll = async (req: GetLanguagesRequest): Promise<GetLanguagesCommon | null> => {
-    logRequest(req);
-    return {
-      count: 30,
-      languages: [languageDTO],
-    };
+  static findAndCountAll = async (selectionAndOutputParameters: GetLanguagesQuery): Promise<{ count: number; languages: ILanguage[] }> => {
+    const languagesAndTheirCount = await LanguagesRepository.findAndCountAll(selectionAndOutputParameters);
+    return languagesAndTheirCount;
   };
 
-  static findById = async (req: GetOneLanguageRequest): Promise<LanguageDTO | null> => {
-    logRequest(req);
-    return languageDTO;
+  static create = async (createLanguageDTO: CreateLanguageDTO): Promise<LanguageDTO> => {
+    const language = await LanguagesService.findOne({ code: createLanguageDTO.code });
+    if (language) {
+      throw new BadRequestError(LANGUAGE_ALREADY_EXISTS_MESSAGE);
+    }
+
+    const createdLanguage = await LanguagesRepository.create(createLanguageDTO);
+
+    return new LanguageDTO(createdLanguage);
   };
 
-  static create = async (req: CreateLanguageRequest): Promise<LanguageDTO> => {
-    logRequest(req);
-    return languageDTO;
+  static update = async (languageId: ObjectId, updateLanguageDTO: UpdateLanguageDTO): Promise<LanguageDTO> => {
+    const languageToUpdate = await LanguagesService.findOne({ _id: languageId });
+    if (!languageToUpdate) {
+      throw new NotFoundError(LANGUAGE_NOT_FOUND_MESSAGE);
+    }
+
+    const { code } = updateLanguageDTO;
+    const language = code && (await LanguagesService.findOne({ code }));
+    if (language) {
+      throw new BadRequestError(LANGUAGE_ALREADY_EXISTS_MESSAGE);
+    }
+
+    const updatedLanguage = await LanguagesRepository.update(languageId, updateLanguageDTO);
+
+    return new LanguageDTO(updatedLanguage);
   };
 
-  static update = async (req: UpdateLanguageRequest): Promise<LanguageDTO | null> => {
-    logRequest(req);
-    return languageDTO;
+  static delete = async (languageId: ObjectId): Promise<void> => {
+    const languageToDelete = await LanguagesService.findOne({ _id: languageId });
+    if (!languageToDelete) {
+      throw new NotFoundError(LANGUAGE_NOT_FOUND_MESSAGE);
+    }
+
+    const languageIsUsedInUsers = await UsersService.findOne({ nativeLanguageId: languageId });
+    if (languageIsUsedInUsers) {
+      throw new BadRequestError(LANGUAGE_CANNOT_BE_DELETED_MESSAGE);
+    }
+
+    await LanguagesRepository.delete(languageId);
   };
 
-  static delete = async (req: DeleteLanguageRequest): Promise<number | null> => {
-    logRequest(req);
-    return 1;
+  static findOne = async (condition: FilterQuery<ILanguage>): Promise<ILanguage | null> => {
+    const language = await LanguagesRepository.findOne(condition);
+    return language;
   };
 }

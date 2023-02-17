@@ -1,7 +1,7 @@
 /* eslint-disable require-await */
+import { Language } from '../languages/language.model';
 import { logRequest } from '../../utils';
-import { LanguageDTO } from '../languages/language.dto';
-import { Language } from '../languages/language.entity';
+import { LanguageDTO } from '../languages/types';
 import { TaskDTO } from './task.dto';
 import { Task } from './task.entity';
 import {
@@ -14,7 +14,13 @@ import {
   CreateTaskRequest,
 } from './types';
 
-const languageDTO = new LanguageDTO(new Language('russian', 'ru', new Date(), new Date()));
+const language = new Language();
+language.id = 1;
+language.code = 'russian';
+language.name = 'ru';
+language.createdAt = new Date();
+language.updatedAt = new Date();
+const languageDTO = new LanguageDTO(language);
 const task = new Task(1, 1, 'to_foreign', 'correct', ['привет'], 'привет', new Date(), new Date());
 const taskDTO = new TaskDTO(task, 'hello', 1, 2);
 
