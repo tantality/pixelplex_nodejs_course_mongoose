@@ -6,7 +6,6 @@ import {
   validateArray,
   validateBaseQuery,
   validateId,
-  validateIdInBody,
 } from '../../validations';
 import { TASK_SORT_BY, TASK_STATUS, TASK_TYPE } from './types';
 
@@ -31,11 +30,7 @@ export class TasksValidation {
     ...validateBaseQuery,
     languageId: {
       in: ['query'],
-      optional: {
-        options: {
-          checkFalsy: true,
-        },
-      },
+      optional: true,
       ...validateId,
     },
     taskStatus: {
@@ -83,7 +78,7 @@ export class TasksValidation {
           const fromDate = req.query?.fromDate;
           const tryParseFromDate = Date.parse(fromDate);
           if (
-            (tryParseFromDate && fromDate >= toDate && !TasksValidation.isInvalidDate(fromDate)) ||
+            (tryParseFromDate && !TasksValidation.isInvalidDate(fromDate) && fromDate >= toDate) ||
             TasksValidation.isInvalidDate(toDate)
           ) {
             throw new Error();
@@ -111,11 +106,12 @@ export class TasksValidation {
   static createTask: Schema = {
     foreignLanguageId: {
       in: ['body'],
-      ...validateIdInBody,
+      ...validateId,
     },
     type: {
       in: ['body'],
       ...validateAndSanitizeString,
+      toLowerCase: true,
       custom: {
         options: (value: string) => checkStringIn(value, Object.values(TASK_TYPE)),
       },
@@ -131,6 +127,7 @@ export class TasksValidation {
       in: ['body'],
       ...validateAndSanitizeString,
       ...DEFAULT_STRING_LENGTH_VALIDATION,
+      toLowerCase: true,
     },
   };
 }

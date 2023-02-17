@@ -1,37 +1,55 @@
-/* eslint-disable require-await */
-import { logRequest } from '../../utils';
-import { CardDTO } from './card.dto';
-import { Card } from './card.entity';
-import { GetCardsRequest, GetCardsCommon, CreateCardRequest, UpdateCardRequest, DeleteCardRequest } from './types';
-import { WordDTO } from './word.dto';
-import { Word } from './word.entity';
-
-const nativeWordDTO = new WordDTO({ id: 1, value: 'ef' });
-const foreignWordDTO = new WordDTO(new Word(2, 1, 'hello', new Date(), new Date()));
-const card = new Card(1, 1, 2, new Date(), new Date());
-const cardDTO = new CardDTO(card, [nativeWordDTO], [foreignWordDTO]);
+import { FilterQuery, ObjectId } from 'mongoose';
+import { NotFoundError, CARD_NOT_FOUND_MESSAGE } from '../../errors';
+import { checkLanguagesValidity } from '../../utils';
+import { IUser } from '../users/types';
+import { UsersService } from '../users/users.service';
+import { CardsRepository } from './cards.repository';
+import { ICard, GetCardsQuery, CardDTO, CreateCardDTO, UpdateCardDTO } from './types';
 
 export class CardsService {
-  static findAll = async (req: GetCardsRequest): Promise<GetCardsCommon | null> => {
-    logRequest(req);
-    return {
-      count: 30,
-      cards: [cardDTO],
-    };
+  static findAndCountAll = async (
+    cardSelectionParameters: GetCardsQuery & { userId: ObjectId },
+  ): Promise<{ count: number; cards: ICard[] }> => {
+    const cardsAndTheirCount = await CardsRepository.findAndCountAll(cardSelectionParameters);
+    return cardsAndTheirCount;
   };
 
-  static create = async (req: CreateCardRequest): Promise<CardDTO> => {
-    logRequest(req);
-    return cardDTO;
+  static create = async (cardData: Omit<CreateCardDTO, 'nativeLanguageId'>): Promise<CardDTO> => {
+    const { nativeLanguageId } = (await UsersService.findOne({ _id: cardData.userId })) as IUser;
+
+    await checkLanguagesValidity(nativeLanguageId, cardData.foreignLanguageId);
+
+    const createdCard = await CardsRepository.create({ ...cardData, nativeLanguageId: nativeLanguageId as ObjectId });
+
+    return new CardDTO(createdCard);
   };
 
-  static update = async (req: UpdateCardRequest): Promise<CardDTO | null> => {
-    logRequest(req);
-    return cardDTO;
+  static update = async (userId: ObjectId, cardId: ObjectId, cardData: UpdateCardDTO): Promise<CardDTO> => {
+    const cardToUpdate = await CardsService.findOne({ userId, _id: cardId });
+    if (!cardToUpdate) {
+      throw new NotFoundError(CARD_NOT_FOUND_MESSAGE);
+    }
+
+    const { nativeLanguageId } = (await UsersService.findOne({ _id: userId })) as IUser;
+
+    await checkLanguagesValidity(nativeLanguageId, cardData.foreignLanguageId);
+
+    const updatedCard = await CardsRepository.update(cardId, cardData);
+
+    return new CardDTO(updatedCard);
   };
 
-  static delete = async (req: DeleteCardRequest): Promise<number | null> => {
-    logRequest(req);
-    return 1;
+  static delete = async (userId: ObjectId, cardId: ObjectId): Promise<void> => {
+    const cardToDelete = await CardsService.findOne({ userId, _id: cardId });
+    if (!cardToDelete) {
+      throw new NotFoundError(CARD_NOT_FOUND_MESSAGE);
+    }
+
+    await CardsRepository.delete(cardId);
+  };
+
+  static findOne = async (condition: FilterQuery<ICard>): Promise<ICard | null> => {
+    const card = await CardsRepository.findOne(condition);
+    return card;
   };
 }

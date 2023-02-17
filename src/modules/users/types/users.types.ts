@@ -1,12 +1,15 @@
+import { ObjectId } from 'mongoose';
+import { IToken } from '../../auth/types';
+
 export interface IUser {
-  id: number;
-  nativeLanguageId: number;
+  _id: ObjectId;
+  nativeLanguageId: ObjectId | null;
   name: string;
   email: string;
   normalizedEmail: string;
   password: string;
   role: string;
-  refreshToken: string | null;
+  refreshTokens: IToken[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -15,3 +18,5 @@ export enum USER_ROLE {
   USER = 'user',
   ADMIN = 'admin',
 }
+
+export type CreateUserData = Pick<IUser, 'name' | 'email' | 'normalizedEmail' | 'password'> & { nativeLanguageId: ObjectId };

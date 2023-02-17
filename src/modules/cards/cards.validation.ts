@@ -2,10 +2,9 @@ import { ParamSchema, Schema } from 'express-validator';
 import { DEFAULT_STRING_LENGTH_VALIDATION } from '../../constants';
 import {
   validateAndSanitizeString,
-  validateId,
   validateBaseQuery,
   checkStringIn,
-  validateIdInBody,
+  validateId,
   validateArray,
 } from '../../validations';
 import { MIN_ARRAY_LENGTH, MAX_ARRAY_LENGTH } from './cards.constants';
@@ -33,11 +32,7 @@ export class CardsValidation {
     ...validateBaseQuery,
     languageId: {
       in: ['query'],
-      optional: {
-        options: {
-          checkFalsy: true,
-        },
-      },
+      optional: true,
       ...validateId,
     },
     sortBy: {
@@ -58,11 +53,13 @@ export class CardsValidation {
       in: ['body'],
       ...validateAndSanitizeString,
       ...DEFAULT_STRING_LENGTH_VALIDATION,
+      toLowerCase: true,
     },
     'foreignWords.*': {
       in: ['body'],
       ...validateAndSanitizeString,
       ...DEFAULT_STRING_LENGTH_VALIDATION,
+      toLowerCase: true,
     },
     nativeWords: {
       ...CardsValidation.validateArray,
@@ -72,7 +69,7 @@ export class CardsValidation {
     },
     foreignLanguageId: {
       in: ['body'],
-      ...validateIdInBody,
+      ...validateId,
     },
   };
 
@@ -84,19 +81,21 @@ export class CardsValidation {
     foreignLanguageId: {
       in: ['body'],
       optional: true,
-      ...validateIdInBody,
+      ...validateId,
     },
     'nativeWords.*': {
       in: ['body'],
       optional: true,
       ...validateAndSanitizeString,
       ...DEFAULT_STRING_LENGTH_VALIDATION,
+      toLowerCase: true,
     },
     'foreignWords.*': {
       in: ['body'],
       optional: true,
       ...validateAndSanitizeString,
       ...DEFAULT_STRING_LENGTH_VALIDATION,
+      toLowerCase: true,
     },
     nativeWords: {
       optional: true,

@@ -1,6 +1,9 @@
-declare namespace Express {
+import { ObjectId } from 'mongoose';
+import 'express';
+
+declare module 'express' {
   export interface Request {
-    userId?: number;
+    userId?: ObjectId;
     role?: string;
   }
 }
