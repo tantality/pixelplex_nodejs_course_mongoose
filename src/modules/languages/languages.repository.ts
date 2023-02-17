@@ -2,13 +2,13 @@ import { Aggregate, FilterQuery, ObjectId, ProjectionType } from 'mongoose';
 import { SortingConditionWithDirectionAsNumber, SORT_DIRECTION } from '../../types';
 import { getSortDirectionAsNumber } from '../../utils';
 import { Language } from './language.model';
-import { CreateLanguageBody, GetLanguagesQuery, ILanguage, LANGUAGE_SORT_BY, UpdateLanguageBody } from './types';
+import { CreateLanguageDTO, GetLanguagesQuery, ILanguage, LANGUAGE_SORT_BY, UpdateLanguageDTO } from './types';
 
 export class LanguagesRepository {
   static DTO_FIELD_SELECTION_CONFIG: ProjectionType<ILanguage> = { _id: 0, id: '$_id', code: 1, name: 1, createdAt: 1 };
 
-  static findAndCountAll = async (query: GetLanguagesQuery): Promise<{ count: number; languages: ILanguage[] }> => {
-    const { search, sortBy, sortDirection, limit, offset } = query;
+  static findAndCountAll = async (selectionAndOutputParameters: GetLanguagesQuery): Promise<{ count: number; languages: ILanguage[] }> => {
+    const { search, sortBy, sortDirection, limit, offset } = selectionAndOutputParameters;
 
     const findingCondition = LanguagesRepository.createFindingConditionForLanguages(search);
     const sortingCondition = LanguagesRepository.createSortingConditionForLanguages(sortBy, sortDirection);
@@ -72,15 +72,15 @@ export class LanguagesRepository {
     return count;
   };
 
-  static create = async (body: CreateLanguageBody): Promise<ILanguage> => {
-    const createdLanguage = await Language.create(body);
+  static create = async (createLanguageDTO: CreateLanguageDTO): Promise<ILanguage> => {
+    const createdLanguage = await Language.create(createLanguageDTO);
     return createdLanguage;
   };
 
-  static update = async (_id: ObjectId, body: UpdateLanguageBody): Promise<ILanguage> => {
-    await Language.updateOne({ _id }, { ...body });
+  static update = async (id: ObjectId, updateLanguageDTO: UpdateLanguageDTO): Promise<ILanguage> => {
+    await Language.updateOne({ _id: id }, { ...updateLanguageDTO });
 
-    const updatedLanguage = (await LanguagesRepository.findOne({ _id })) as ILanguage;
+    const updatedLanguage = (await LanguagesRepository.findOne({ _id: id })) as ILanguage;
 
     return updatedLanguage;
   };
@@ -90,7 +90,7 @@ export class LanguagesRepository {
     return language;
   };
 
-  static delete = async (_id: ObjectId): Promise<void> => {
-    await Language.deleteOne({ _id });
+  static delete = async (id: ObjectId): Promise<void> => {
+    await Language.deleteOne({ _id: id });
   };
 }
